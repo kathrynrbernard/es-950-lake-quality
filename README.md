@@ -5,37 +5,37 @@ Group project for ES 950 to analyze data from the DNR on Wisconsin lake quality.
 ### Variable definitions
 |Variable Name |Definition |Data Type |Values |
 |:---- |:---- |:--- |:--- |
-|PARCELID | unique ID of the parcel being assessed; comes from [statewide parcel data](https://www.sco.wisc.edu/parcels/data/) |Number | --|
-|CANOPY_PCT |percentage of the Riparian Buffer Zone covered by tree canopy |Number |Number between 0 and 100 |
+|PARCELID | unique ID of the parcel being assessed; comes from [statewide parcel data](https://www.sco.wisc.edu/parcels/data/) |String | --|
+|CANOPY_PCT |percentage of the Riparian Buffer Zone covered by tree canopy |Integer |Number between 0 and 100 |
 |SHRUB_PRESENCE |presence of shrubs in the Riparian buffer zone (related to SHRUB_HERB_PCT) |Boolean |1 if present, 0 if not present |
 |HERB_PRESENCE |presence of herbaceous plants in the Riparian Buffer Zone (related to SHRUB_HERB_PCT) |Boolean |1 if present, 0 if not present |
-|SHRUB_HERB_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by shrubs and/or herbaceous plants combined |Number |Number between 0 and 100 |
-|IMPERVIOUS_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by impervious surface (e.g., concrete, decking, compacted gravel, etc.) |Number |Number between 0 and 100 |
-|MANI_LAWN_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by manicured lawn (lawn that is trimmed short) |Number |Number between 0 and 100 |
-|AG_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by agriculture (e.g., row crops, hay field, etc.) | Number |Number between 0 and 100 |
-|OTHER_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by other materials (e.g., bare soil, mulch, gravel, etc.) |Number |Number between 0 and 100 |
-|BUILDINGS_CNT |number of buildings present in the Riparian Buffer Zone |Number |- |
-|BOAT_SHORE_CNT |number of boats flipped upside down on the shore present in the Riparian Buffer Zone |Number |- |
-|FIRE_PIT_CNT |number of fire pits present in the Riparian Buffer Zone |Number |- |
-|OTHER_STRUCTURE_CNT |number of other structures in the Riparian Buffer Zone |Number |- |
+|SHRUB_HERB_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by shrubs and/or herbaceous plants combined |Integer |Number between 0 and 100 |
+|IMPERVIOUS_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by impervious surface (e.g., concrete, decking, compacted gravel, etc.) |Integer |Number between 0 and 100 |
+|MANI_LAWN_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by manicured lawn (lawn that is trimmed short) |Integer |Number between 0 and 100 |
+|AG_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by agriculture (e.g., row crops, hay field, etc.) |Integer |Number between 0 and 100 |
+|OTHER_PCT |percentage of the ground layer in the Riparian Buffer Zone covered by other materials (e.g., bare soil, mulch, gravel, etc.) |Integer |Number between 0 and 100 |
+|BUILDINGS_CNT |number of buildings present in the Riparian Buffer Zone |Integer |- |
+|BOAT_SHORE_CNT |number of boats flipped upside down on the shore present in the Riparian Buffer Zone |Integer |- |
+|FIRE_PIT_CNT |number of fire pits present in the Riparian Buffer Zone |Integer |- |
+|OTHER_STRUCTURE_CNT |number of other structures in the Riparian Buffer Zone |Integer |- |
 |POINT_SOURCE_PRES |presence of a point source (e.g., culverts, drain pipes, sump pumps, rain gutters, etc.) |Category |2 if present in the Riparian Buffer Zone, 1 if present outside of the Riparian Buffer Zone, 0 if not present |
 |CHANNEL_FLOW_PRES |presence of channelized flow or gullies |Category |2 if present in the Riparian Buffer Zone, 1 if present outside of the Riparian Buffer Zone, 0 if not present
 |STAIR_LAKE_PRES |presence of stairs, trails, or roads leading directly to the top of the bank lip |Category |2 if present in the Riparian Buffer Zone, 1 if present outside of the Riparian Buffer Zone, 0 if not present |
 |LAWN_LAKE_PRES |presence of sloped lawn or soil such that runoff leads directly into the lake |Category |2 if present in the Riparian Buffer Zone, 1 if present outside of the Riparian Buffer Zone, 0 if not present |
 |SAND_DEP_PRES |presence of sand or silt deposits |Category |2 if present in the Riparian Buffer Zone, 1 if present outside of the Riparian Buffer Zone, 0 if not present |
 |OTHER_RUNOFF_PRES |other runoff factors present (may include presence of bare soil) |Category |2 if present in the Riparian Buffer Zone, 1 if present outside of the Riparian Buffer Zone, 0 if not present |
-|VERTICAL_WALL_LEN |length of vertical sea wall in the Bank Zone |Number |Number (recorded in feet) |
-|RIPRAP_LEN |length of rip rap in the Bank Zone |Number |Number (recorded in feet) |
-|EROSION_CNTRL_LEN |length of other erosion control structures in the Bank Zone |Number |Number (recorded in feet)|
-|ART_BEACH_LEN |length of artificial beach in the Bank Zone |Number |Number (recorded in feet) |
-|GREAT_ERO_LEN |length of slumping banks or bank erosion when the bank face is greater than 1 foot high |Number |Number (recorded in feet) |
-|LESS_ERO_LEN |length of slumping banks or bank erosion when the bank face is less than 1 foot high |Number |Number (recorded in feet) |
-|PIERS_CNT |number of piers present in the Littoral Zone| Number |Number |
-|BOAT_LIFT_CNT |number of boat lifts present in the Littoral Zone |Number |Number |
-|SWIM_RAFT_CNT| number of swim rafts present in the Littoral Zone within 50 feet from shore |Number |Number |
-|BOATHOUSE_CNT| number of boathouses present in the Littoral Zone |Number |Number|
-|MARINAS_CNT |number of marinas present in the Littoral Zone |Number |Number |  
-|STRUCTURE_OTHER_CNT |number of other structures present in the Littoral Zone |Number |Number |
+|VERTICAL_WALL_LEN |length of vertical sea wall in the Bank Zone |Integer |Number (recorded in feet) |
+|RIPRAP_LEN |length of rip rap in the Bank Zone |Integer |Number (recorded in feet) |
+|EROSION_CNTRL_LEN |length of other erosion control structures in the Bank Zone |Integer |Number (recorded in feet)|
+|ART_BEACH_LEN |length of artificial beach in the Bank Zone |Integer |Number (recorded in feet) |
+|GREAT_ERO_LEN |length of slumping banks or bank erosion when the bank face is greater than 1 foot high |Integer |Number (recorded in feet) |
+|LESS_ERO_LEN |length of slumping banks or bank erosion when the bank face is less than 1 foot high |Integer |Number (recorded in feet) |
+|PIERS_CNT |number of piers present in the Littoral Zone|Integer |- |
+|BOAT_LIFT_CNT |number of boat lifts present in the Littoral Zone |Integer |- |
+|SWIM_RAFT_CNT| number of swim rafts present in the Littoral Zone within 50 feet from shore |Integer |- |
+|BOATHOUSE_CNT| number of boathouses present in the Littoral Zone |Integer |- |
+|MARINAS_CNT |number of marinas present in the Littoral Zone |Integer |- |  
+|STRUCTURE_OTHER_CNT |number of other structures present in the Littoral Zone |Integer |- |
 |EMERGENT_VEG_PRES |presence of emergent aquatic plants in the Littoral Zone |Boolean |1 if present, 0 if not present |
 |FLOATING_VEG_PRES |presence of rooted floating aquatic plants in the Littoral Zone |Boolean |1 if present, 0 if not present |
 |PLANT_REMOVAL_PRES |presence of aquatic plant removal areas in the Littoral Zone |Boolean |1 if present, 0 if not present |
@@ -49,13 +49,13 @@ Group project for ES 950 to analyze data from the DNR on Wisconsin lake quality.
 |PLACENAME| town where the lake is located |String | Free text |
 |COUNTY| county in Wisconsin where the lake is located |Sring |Vilas County |
 |LAKE_NAME| name of the lake |String | Big Portage, Big Arbor Vitae, or Papoose |
-|WBIC |Water Body Identification Code for the lake |Number |- |
+|WBIC |Water Body Identification Code for the lake |Integer |- |
 
 ## Woody habitat dataset
 ### Variable definitions
 |Variable Name |Definition |Data Type |Values |
 |:---- |:---- |:--- |:--- |
-|WBIC |Water Body Identification Code for the lake |Number |- |
+|WBIC |Water Body Identification Code for the lake |Integer |- |
 |LAKE_NAME |Name of the lake |String | Big Portage, Big Arbor Vitae, or Papoose |
 |UNIQUE_ID |Unique identifier for the log being documented |Number |- |
 |BRANCH |Branchiness ranking of the piece of wood |Category |0 if no branches, 1 if a few branches, 2 if tree trunk has a full crown |
