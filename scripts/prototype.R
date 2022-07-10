@@ -65,5 +65,27 @@ colnames(papoose_woody_data)
 # - density of coarse woody habitat.
 # For each metric, a threshold identifying healthy habitat will be developed.
 
+# data type cleanup - parcel data
+# see what the current data types are
+str(papoose_parcel_data)
 
+# boolean columns are mostly stored as 0s and 1s right now (int type)
+to_bool <- c("EMERGENT_VEG_PRES", "FLOATING_VEG_PRES", "PLANT_REMOVAL_PRES", "FLOAT_EMERG_PRES", "EXPOSED_CANOPY_PRES",
+             "EXPOSED_SHRUB_PRES", "EXPOSED_HERB_PRES", "EXPOSED_MOW_PRES", "EXPOSED_TILL_PRES")
 
+# shrub presence and herb presence are stored as "Y" and "N" instead of 0 and 1
+# convert them to logicals
+test <- papoose_parcel_data
+test$SHRUB_PRESENCE <- test$SHRUB_PRESENCE=="Y"
+test$HERB_PRESENCE <- test$HERB_PRESENCE=="Y"
+
+# convert rest of boolean values to logical type
+test <- test %>% mutate(across(.cols=all_of(to_bool), .fns=as.logical))
+
+str(test)                               
+
+# convert category values to factor type
+to_factor <- c("POINT_SOURCE_PRES", "CHANNEL_FLOW_PRES", "STAIR_LAKE_PRES", "LAWN_LAKE_PRES", "SAND_DEP_PRES", "OTHER_RUNOFF_PRES")
+# couldn't get this to work properly yet
+#test2 <- test %>% mutate(across(.cols=all_of(to_factor), .fns=factor))
+#str(test2)
