@@ -12,10 +12,83 @@ woody_data <- read.csv("data/950_woody_habitat_clean.csv")
 
 # Separate our group's lake - Big Arbor Vitae Lake
 arbor_parcel <- parcel_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
-arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
+arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae")
 
 
-# Variables of interest
+## Variables of interest
 # Shoreline vegetation - shrubs/herbs/manicured lawn
-# Erosion control structures vs. risks to erosion like channels/stairs/etc
+shore_veg <- select(arbor_parcel, c(PARCELID, CANOPY_PCT, SHRUB_PRESENCE, HERB_PRESENCE, SHRUB_HERB_PCT, MANI_LAWN_PCT))
+
+shore_veg %>% summarize(mean_sh_pct = mean(SHRUB_HERB_PCT),
+                        min_sh_pct = min(SHRUB_HERB_PCT), 
+                        max_sh_pct = max(SHRUB_HERB_PCT),
+                        mean_canopy_pct = mean(CANOPY_PCT),
+                        min_canopy_pct = min(CANOPY_PCT),
+                        max_canopy_pct = max(CANOPY_PCT))
+
+shore_veg %>% ggplot(aes(x=SHRUB_HERB_PCT)) +
+  geom_histogram(binwidth=5)
+
+shore_veg %>% ggplot(aes(x=CANOPY_PCT)) +
+  geom_histogram(binwidth=5)
+
+shore_veg %>% ggplot(aes(x=MANI_LAWN_PCT)) +
+  geom_histogram(binwidth=5)
+
+
+# Erosion control structures vs. risks to erosion
+erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
+erosion_risks <- select(arbor_parcel, 
+                        c(PARCELID, POINT_SOURCE_PRES, CHANNEL_FLOW_PRES, STAIR_LAKE_PRES, LAWN_LAKE_PRES, SAND_DEP_PRES, OTHER_RUNOFF_PRES))
+
+erosion_risks %>% ggplot(aes(x=OTHER_RUNOFF_PRES)) +
+  geom_histogram(binwidth=1)
+
+# Most parcels do not have any runoff concerns; a few have POINT_SOURCE and a few more have CHANNEL_FLOW but none have the others
+
+erosion_meas <- select(arbor_parcel, c(PARCELID, GREAT_ERO_LEN, LESS_ERO_LEN))
+# more parcels have GREAT_ERO_LEN than have concerns documented - could still include this
+
+erosion_control %>% summarize(mean_wall_len = mean(VERTICAL_WALL_LEN),
+                        min_wall_len = min(VERTICAL_WALL_LEN), 
+                        max_wall_len = max(VERTICAL_WALL_LEN),
+                        mean_riprap_len = mean(RIPRAP_LEN),
+                        min_riprap_len = min(RIPRAP_LEN),
+                        max_riprap_len = max(RIPRAP_LEN),
+                        mean_ctrl_len = mean(EROSION_CNTRL_LEN),
+                        min_ctrl_len = min(EROSION_CNTRL_LEN),
+                        max_ctrl_len = max(EROSION_CNTRL_LEN))
+
+# a decent number of people have riprap 
+erosion_control %>% ggplot(aes(x=RIPRAP_LEN)) +
+  geom_histogram(binwidth=5)
+
+
 # Aquatic vegetation - floating/emergent
+aquatic_veg <- select(arbor_parcel, c(PARCELID, EMERGENT_VEG_PRES, FLOATING_VEG_PRES, FLOAT_EMERG_PRES))
+
+# Aquatic vegetation + woody habitat
+
+
+
+
+
+# Parcels with multiple aquatic structures
+aquatic_structures <- select(arbor_parcel, c(PARCELID, PIERS_CNT, BOAT_LIFT_CNT, SWIM_RAFT_CNT, BOATHOUSE_CNT, MARINAS_CNT, STRUCTURE_OTHER_CNT))
+aquatic_structures <- aquatic_structures %>% mutate(STRUCTURES_TOTAL = rowSums(aquatic_structures[,-(1)]))
+
+aquatic_structures %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
+  geom_histogram(binwidth=1)
+aquatic_structures[aquatic_structures$STRUCTURES_TOTAL==14,] # this is likely a public boat parking area
+# PARCELID = 2-2686-02
+aquatic_structures[aquatic_structures$STRUCTURES_TOTAL==2,]
+# PARCELID = 2-2697
+
+arbor_parcel[arbor_parcel$PARCELID=="2-2686-02",]
+arbor_parcel[arbor_parcel$PARCELID=="2-2697",]
+
+
+
+## TODO map parcel ids for developed half and non-developed half of the lake, get summary stats for each half and compare
+### use the lake viewer tool
+# pick one heavily developed parcel, one with a few structures, and one on the non developed side
