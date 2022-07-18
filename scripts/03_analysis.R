@@ -44,3 +44,32 @@ arbor_parcel %>%
     mean_float = mean(FLOATING_VEG_PRES),
     mean_EMERG = mean(EMERGENT_VEG_PRES)
   )
+
+
+# parcel drilldown
+## 2-2686-16
+# land: lots of structures, lots of manicured lawn, medium canopy, few shrubs/herbs
+# water: lots of structures, some veg
+# erosion: lots of control structures, no concerns, no actual erosion
+parcel_one <- arbor_parcel[arbor_parcel$STRUCTURES_TOTAL==max(arbor_parcel$STRUCTURES_TOTAL),]
+
+# 2-2562-02
+# land: lots of canopy and shrub/herb, no structures
+# water: no structures, no veg
+# erosion: a lot of erosion (from the notes), channel flow present but no great-ero-len documented
+parcel_two <- arbor_parcel[22,]
+
+#"2-2648" 
+# land: lots of canopy, some structures
+# water: has veg
+# erosion: no concerns or controls
+parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2648",]
+
+# create a small dataframe with just parcels of interest
+parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
+
+
+
+## ideas
+# interactive to filter to look at only developed/non/all
+# home screen with explanation

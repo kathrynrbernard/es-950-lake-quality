@@ -2,6 +2,7 @@
 # Load packages
 library(tidyverse)
 library(gridExtra)
+library(grid)
 
 # Read in data
 parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
@@ -122,10 +123,11 @@ undevel_canopy_plot <- arbor_parcel %>% filter(DEVELOPED=="FALSE") %>%
   labs(title="Undeveloped Parcels",x="Percent Canopy Cover", y="") +
   theme_minimal()
 # plot side by side
-grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol=2)
+grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol=2, 
+             top=textGrob("Percent Canopy Coverage by Development Status",gp = gpar(fontsize = 15)))
 
 
-# mean canopy - developed vs undeveloped
+d# mean canopy - developed vs undeveloped
 arbor_parcel %>% 
   group_by(DEVELOPED) %>% 
   summarize(mean_canopy = mean(CANOPY_PCT)) %>% 
@@ -136,13 +138,3 @@ arbor_parcel %>%
   scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs since the variable is measured in %s: https://stackoverflow.com/questions/50627529/add-a-percent-to-y-axis-labels
   theme_minimal()
 
-
-
-
-
-sum(arbor_parcel$DEVELOPED) # 79 developed, 10 nondeveloped
-arbor_parcel[arbor_parcel$DEVELOPED,"FLOATING_VEG_PRES"]
-
-
-arbor_parcel %>%
-  ggplot(aes(x=FLOATING_VEG_PRES,fill=DEVELOPED)) + geom_bar(aes(y=..count../sum(..count..)),position="dodge",stat="count")

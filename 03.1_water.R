@@ -58,29 +58,15 @@ arbor_parcel <- arbor_parcel %>% mutate(STRUCTURES_CLASS =
                                                     STRUCTURES_TOTAL > 1 & STRUCTURES_TOTAL <= 5 ~ "Medium",
                                                     STRUCTURES_TOTAL > 5 ~ "High")
 )
-arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS)) +
-  geom_histogram(stat = "count")
-arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=FLOAT_OR_EMERG_PRES)) +
+blues <- brewer.pal(n=9,name="Blues")
+blues2 <- blues[c(6,9)]
+names(blues2) <- levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
+
+arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=as.factor(FLOAT_OR_EMERG_PRES))) +
   geom_histogram(stat = "count",position="dodge") +
-  scale_x_discrete(limits=c("Low","Medium", "High"))
-
-
-
-# parcel drilldown
-## 2-2686-16
-# land: lots of structures, lots of manicured lawn, medium canopy, few shrubs/herbs
-# water: lots of structures, some veg
-# erosion: lots of control structures, no concerns, no actual erosion
-parcel_one <- arbor_parcel[arbor_parcel$STRUCTURES_TOTAL==max(arbor_parcel$STRUCTURES_TOTAL),]
-
-# 2-2562-02
-# land: lots of canopy and shrub/herb, no structures
-# water: no structures, no veg
-# erosion: a lot of erosion (from the notes), channel flow present but no great-ero-len documented
-parcel_two <- arbor_parcel[22,]
-
-# create a small dataframe with just parcels of interest
-parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID)
+  scale_x_discrete(limits=c("Low","Medium", "High"),labels=c("Low (0-1)","Medium (2-5)", "High (6+)")) +
+  labs(title="Presence of Aquatic Vegetation by Structures in the Water",x="Number of Structures", y="Number of Parcels") +
+  scale_fill_manual(name="Aquatic Vegetation Present", values = blues2)
 
 # investigate what kinds of structures are here
 parcel_structures <- select(parcel_dd,c(PARCELID,PIERS_CNT,BOAT_LIFT_CNT,SWIM_RAFT_CNT,BOATHOUSE_CNT,MARINAS_CNT,STRUCTURE_OTHER_CNT))
