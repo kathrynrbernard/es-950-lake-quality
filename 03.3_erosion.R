@@ -2,6 +2,8 @@
 # Load packages
 library(tidyverse)
 library(gridExtra)
+library(dplyr)
+library(hrbrthemes)
 
 # Read in data
 parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
@@ -54,3 +56,19 @@ erosion_control %>% summarize(
 # a decent number of people have riprap
 erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
   geom_histogram(binwidth = 5)
+
+# basic riprap graph to insert for now
+erosion_control %>%
+  ggplot( aes(x=RIPRAP_LEN)) +
+  geom_density(fill="#741b08", color="#de4524") +
+ggtitle("Amount of Riprap in Parcels") +
+  labs(x = "Rip Rap Length", y = "Density") + 
+  theme_ipsum()
+
+# 
+erosion_control %>%
+  ggplot( aes(x=RIPRAP_LEN)) +
+  geom_density(fill="#741b08", color="#de4524") +
+  ggtitle("Amount of Riprap in Parcels") +
+  labs(x = "Rip Rap Length", y = "Density") + 
+  theme_ipsum()

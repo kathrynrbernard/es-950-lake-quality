@@ -114,4 +114,5 @@ parcel_veg_pivot %>% ggplot(aes(x=Type,y=Presence,fill=PARCELID)) +
 
 parcel_veg %>% ggplot(aes(x=PARCELID,y=FLOATING_VEG_PRES,size=EMERGENT_VEG_PRES)) + 
   geom_point() 
+select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
 
