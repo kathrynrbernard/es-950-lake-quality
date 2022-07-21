@@ -59,21 +59,59 @@ arbor_parcel <- arbor_parcel %>% mutate(STRUCTURES_CLASS =
                                                     STRUCTURES_TOTAL > 5 ~ "High")
 )
 blues <- brewer.pal(n=9,name="Blues")
-blues2 <- blues[c(6,9)]
+blues2 <- blues[c(7,3)]
 names(blues2) <- levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
 
 arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=as.factor(FLOAT_OR_EMERG_PRES))) +
-  geom_histogram(stat = "count",position="dodge") +
+  geom_histogram(stat = "count",position="dodge", color=blues[8]) +
   scale_x_discrete(limits=c("Low","Medium", "High"),labels=c("Low (0-1)","Medium (2-5)", "High (6+)")) +
   labs(title="Presence of Aquatic Vegetation by Structures in the Water",x="Number of Structures", y="Number of Parcels") +
-  scale_fill_manual(name="Aquatic Vegetation Present", values = blues2)
+  scale_fill_manual(name="Aquatic Vegetation Present", values = blues2) +
+  guides(color="none") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
 
-# investigate what kinds of structures are here
+# parcel drilldown - show distribution of total numbers of aquatic structures for each parcel
+# color manipulation to make it the right length
+blues20 <- blues
+i <- 1
+for (color in blues){
+  blues20[i] <- color
+  blues20[i+1] <- color
+  i <- i + 2
+}
+blues20[c(19,20)] <- blues[c(9,9)]
+  
+arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
+  geom_histogram(binwidth=1,fill=blues20, color=blues20[20]) +
+  labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+
+# then go into 3 parcels specifically to show exactly what kinds they have
 parcel_structures <- select(parcel_dd,c(PARCELID,PIERS_CNT,BOAT_LIFT_CNT,SWIM_RAFT_CNT,BOATHOUSE_CNT,MARINAS_CNT,STRUCTURE_OTHER_CNT))
 parcel_struc_pivot <- pivot_longer(parcel_structures,cols=!PARCELID,names_to = "Type", values_to = "Count")
 
-parcel_struc_pivot %>% ggplot(aes(x=Type,y=Count,fill=PARCELID)) + geom_bar(stat="identity") +
-  scale_y_continuous(breaks=seq(1:10))
+parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) + 
+  geom_bar(stat="identity", position="dodge", color=blues[9]) +
+  scale_x_continuous(breaks=seq(0:10)) + # show axis in whole numbers
+  scale_y_discrete(limits=c("BOATHOUSE_CNT", "MARINAS_CNT", "SWIM_RAFT_CNT", "STRUCTURE_OTHER_CNT", "BOAT_LIFT_CNT", "PIERS_CNT"), # reverse order
+                   labels=c("BOATHOUSE_CNT"="Boathouses", "MARINAS_CNT"="Marinas", 
+                            "SWIM_RAFT_CNT"="Swim Rafts", "STRUCTURE_OTHER_CNT"="Other Structures", 
+                            "BOAT_LIFT_CNT"="Boat Lifts", "PIERS_CNT"="Piers")) + 
+  scale_fill_manual(values=blues[c(7,3,1)], name="Parcel ID",breaks=c("2-2686-16", "2-2649", "2-2562-02")) + # re-title and re-order legend
+  labs(x="Number of Structures", y="Type of Structure", title="Count of Each Type of Structure per Parcel") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+  
 
 # investigate what kind of veg is here
-select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
+parcel_veg <- select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
+parcel_veg_pivot <- pivot_longer(parcel_veg, cols=!PARCELID, names_to="Type", values_to="Presence")
+parcel_veg_pivot %>% ggplot(aes(x=Type,y=Presence,fill=PARCELID)) +
+  geom_bar(stat="identity",position="dodge")
+
+
+parcel_veg %>% ggplot(aes(x=PARCELID,y=FLOATING_VEG_PRES,size=EMERGENT_VEG_PRES)) + 
+  geom_point() 
+

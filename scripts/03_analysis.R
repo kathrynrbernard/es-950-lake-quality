@@ -59,17 +59,11 @@ parcel_one <- arbor_parcel[arbor_parcel$STRUCTURES_TOTAL==max(arbor_parcel$STRUC
 # erosion: a lot of erosion (from the notes), channel flow present but no great-ero-len documented
 parcel_two <- arbor_parcel[22,]
 
-#"2-2648" 
-# land: lots of canopy, some structures
-# water: has veg
-# erosion: no concerns or controls
-parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2648",]
+#2-2649
+# land: lots of canopy, lots of shrub/herb, no structures
+# water: has veg, has aquatic structures
+# erosion: no concerns, some controls
+parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2649",]
 
 # create a small dataframe with just parcels of interest
 parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
-
-
-
-## ideas
-# interactive to filter to look at only developed/non/all
-# home screen with explanation

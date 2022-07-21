@@ -106,35 +106,52 @@ arbor_parcel %>% filter(DEVELOPED=="FALSE") %>%
 # align axis scales, clean up labels, add colors, etc.
 #color stuff
 greens <- brewer.pal(n=9,name="Greens")
-developed_greens <- c(rep(greens[1],3),rep(greens[2],3),rep(greens[3],2),rep(greens[4],2),rep(greens[5],2),rep(greens[6],2),rep(greens[7],2),greens[8],rep(greens[9],2))
+greens19 <- greens # developed parcels
+i <- 1
+for (color in greens){
+  greens19[i] <- color
+  greens19[i+1] <- color
+  i <- i + 2
+}
+greens19[19] <- greens[9]
 
-devel_canopy_plot <- arbor_parcel %>% filter(DEVELOPED=="TRUE") %>% 
-  ggplot(aes(x = CANOPY_PCT)) +  
-  geom_bar(fill=developed_greens,aes(y = (..count..)/sum(..count..))) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1L),limits=c(0,.75)) +
-  xlim(0,100) +
-  labs(title="Developed Parcels",x="Percent Canopy Cover", y="Percent of Parcels") +
+greens3 <- greens[c(7,9,9)] # undeveloped parcels
+
+devel_canopy_plot <-
+  arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
+  ggplot(aes(x = CANOPY_PCT)) +
+  geom_bar(fill = greens19, color=greens[9], aes(y = (..count..) / sum(..count..))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
+                     limits = c(0, .75)) +
+  xlim(0, 100) +
+  labs(title = "Developed Parcels", x = "Percent Canopy Cover", y =
+         "Percent of Parcels") +
   theme_minimal()
-undevel_canopy_plot <- arbor_parcel %>% filter(DEVELOPED=="FALSE") %>% 
-  ggplot(aes(x = CANOPY_PCT)) +  
-  geom_bar(fill=greens[7:9],aes(y = (..count..)/sum(..count..))) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1L),limits=c(0,.75)) +
-  xlim(0,100) +
-  labs(title="Undeveloped Parcels",x="Percent Canopy Cover", y="") +
+undevel_canopy_plot <-
+  arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
+  ggplot(aes(x = CANOPY_PCT)) +
+  geom_bar(fill = greens3, color=greens[9], aes(y = (..count..) / sum(..count..))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
+                     limits = c(0, .75)) +
+  xlim(0, 100) +
+  labs(title = "Undeveloped Parcels", x = "Percent Canopy Cover", y =
+         "") +
   theme_minimal()
 # plot side by side
 grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol=2, 
              top=textGrob("Percent Canopy Coverage by Development Status",gp = gpar(fontsize = 15)))
 
 
-d# mean canopy - developed vs undeveloped
+
+# mean canopy - developed vs undeveloped
 arbor_parcel %>% 
   group_by(DEVELOPED) %>% 
   summarize(mean_canopy = mean(CANOPY_PCT)) %>% 
   ggplot(aes(x=DEVELOPED,y=mean_canopy)) + 
-  geom_bar(fill=c(greens[9],greens[7]),stat="identity") +
-  labs(x="Parcel Development Status",y="Average Canopy Coverage") +
+  geom_bar(fill=c(greens[7],greens[3]),color=greens[9], stat="identity") +
+  labs(x="Parcel Development Status",y="Average Canopy Coverage",title="Average Canopy Cover by Parcel Development Status") +
   scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
   scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs since the variable is measured in %s: https://stackoverflow.com/questions/50627529/add-a-percent-to-y-axis-labels
-  theme_minimal()
+  theme_minimal()  +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
 
