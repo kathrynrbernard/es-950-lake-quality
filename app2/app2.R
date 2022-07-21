@@ -70,14 +70,25 @@ arbor_parcel <-
 
 ui <- dashboardPage(
   dashboardHeader(title = "Big Arbor Lake"),
-  dashboardSidebar(),
+  dashboardSidebar(
+    sidebarMenu(
+    menuItem("Land", tabName = "Land", icon = icon("tree")),
+    menuItem("Water", tabName = "Water", icon = icon("tree")),
+  )))
   dashboardBody(
+    tabItems(
+      tabItem("Land",  box(plotOutput("land_development_canopy")),
+              box(
+                selectInput("features", "Features:",
+                            c("CANOPY_PCT","SHRUB_HERB_PCT")), width = 4
+              )
+              
+      ),
+      tabItem("Water",
+              
+              )
     # Boxes need to be put in a row (or column)
-      box(plotOutput("land_development_canopy")),
-      box(
-        selectInput("features", "Features:",
-                    c("CANOPY_PCT","SHRUB_HERB_PCT")), width = 4
-      )
+    
       )
 )
 server <- function(input, output) {
@@ -99,7 +110,7 @@ server <- function(input, output) {
     
     devel_canopy_plot <-
       arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
-      ggplot(input$features)) +
+      ggplot(aes(x = CANOPY_PCT)) +
       geom_bar(fill = developed_greens, aes(y = (..count..) / sum(..count..))) +
       scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
                          limits = c(0, .75)) +
@@ -139,3 +150,4 @@ server <- function(input, output) {
 
 
 shinyApp(ui, server)
+

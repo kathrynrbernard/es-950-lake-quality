@@ -57,10 +57,18 @@ erosion_control %>% summarize(
 erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
   geom_histogram(binwidth = 5)
 
-# potential riprap graph
+# basic riprap graph to insert for now
 erosion_control %>%
   ggplot( aes(x=RIPRAP_LEN)) +
   geom_density(fill="#741b08", color="#de4524") +
 ggtitle("Amount of Riprap in Parcels") +
+  labs(x = "Rip Rap Length", y = "Density") + 
+  theme_ipsum()
+
+# 
+erosion_control %>%
+  ggplot( aes(x=RIPRAP_LEN)) +
+  geom_density(fill="#741b08", color="#de4524") +
+  ggtitle("Amount of Riprap in Parcels") +
   labs(x = "Rip Rap Length", y = "Density") + 
   theme_ipsum()

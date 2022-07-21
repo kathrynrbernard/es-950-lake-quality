@@ -2,6 +2,8 @@ library(shiny)
 library(tidyverse)
 library(RColorBrewer)
 library(gridExtra)
+library(grid)
+library(hrbrthemes)
 
 # Read in data
 parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
@@ -45,7 +47,7 @@ aquatic_structures <-
     )
   )
 arbor_parcel <-
-  arbor_parcel %>% mutate(STRUCTURES_TOTAL = rowSums(aquatic_structures[,-(1)]))
+  arbor_parcel %>% mutate(STRUCTURES_TOTAL = rowSums(aquatic_structures[, -(1)]))
 arbor_parcel <- arbor_parcel %>% mutate(
   STRUCTURES_CLASS =
     case_when(
@@ -65,92 +67,108 @@ arbor_parcel <-
   )
 
 
+ui <- fluidPage(titlePanel("Big Arbor Vitae Lake Quality"), # Application title
+                mainPanel(tabsetPanel(
+                  tabPanel("Land",
+                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",column(8, plotOutput("land_development_canopy")),
+                                    column(4, "Here, we can compare the percentage of canopy coverage on parcels that are developed and non developed. We can see that there is a high percentage of canopy cover on non developed land, but also a good amount on developed land.")),
+                           fluidRow(column(8, plotOutput("avg_canopy_development")),
+                                    column(2, "This is Average Canopy Coverage per Parcel by Development Status. "))
+                  ),
+                  tabPanel("Water",
+                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",column(8, plotOutput("aquatic_veg_structures")),
+                                    column(4, "Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present. We can see that there is very little vegetation present on Big Arbor Lake. Is this a product of removal, or an indication of lake quality issues?")),
+                  ),
+                  tabPanel("Erosion", 
+                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",column(8, plotOutput("erosion_plot")),
+                                    column(4, "This density graph shows the amount of Rip Rap areas present on the lake.")),
+                  ),
+                  
+                ))) 
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(# Application title
-  titlePanel("Big Arbor Vitae Lake Quality"),
-  
-  sidebarLayout(sidebarPanel(
-    radioButtons(
-      inputId = "radio",
-      label = h3("Choose an aspect of the lake to explore"),
-      choices = list(
-        "Land Attributes" = 1,
-        "Water Attributes" = 2,
-        "Erosion Attributes" = 3
-      ),
-      selected = 1
-    )
-  ),
-  mainPanel(column(
-    8, plotOutput("plot")
-  ))))
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
-  output$plot <- renderPlot({
-    if (input$radio == "1") { # land
-      greens <- brewer.pal(n = 9, name = "Greens")
-      developed_greens <-
-        c(
-          rep(greens[1], 3),
-          rep(greens[2], 3),
-          rep(greens[3], 2),
-          rep(greens[4], 2),
-          rep(greens[5], 2),
-          rep(greens[6], 2),
-          rep(greens[7], 2),
-          greens[8],
-          rep(greens[9], 2)
-        )
-      
-      devel_canopy_plot <-
-        arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
-        ggplot(aes(x = CANOPY_PCT)) +
-        geom_bar(fill = developed_greens, aes(y = (..count..) / sum(..count..))) +
-        scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                           limits = c(0, .75)) +
-        xlim(0, 100) +
-        labs(title = "Developed Parcels", x = "Percent Canopy Cover", y =
-               "Percent of Parcels") +
-        theme_minimal()
-      undevel_canopy_plot <-
-        arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
-        ggplot(aes(x = CANOPY_PCT)) +
-        geom_bar(fill = greens[7:9], aes(y = (..count..) / sum(..count..))) +
-        scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                           limits = c(0, .75)) +
-        xlim(0, 100) +
-        labs(title = "Undeveloped Parcels", x = "Percent Canopy Cover", y =
-               "") +
-        theme_minimal()
-      # plot side by side
-      grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol = 2)
-      
-    } # if statement
+  output$land_development_canopy <- renderPlot({
+    greens <- brewer.pal(n = 9, name = "Greens")
+    developed_greens <-
+      c(
+        rep(greens[1], 3),
+        rep(greens[2], 3),
+        rep(greens[3], 2),
+        rep(greens[4], 2),
+        rep(greens[5], 2),
+        rep(greens[6], 2),
+        rep(greens[7], 2),
+        greens[8],
+        rep(greens[9], 2)
+      )
     
-    if (input$radio == "2") { # water
-      
-      # plot
-      blues <- brewer.pal(n = 9, name = "Blues")
-      blues2 <- blues[c(6, 9)]
-      names(blues2) <-
-        levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
-      
-      arbor_parcel %>% ggplot(aes(x = STRUCTURES_CLASS, fill = as.factor(FLOAT_OR_EMERG_PRES))) +
-        geom_histogram(stat = "count", position = "dodge") +
-        scale_x_discrete(
-          limits = c("Low", "Medium", "High"),
-          labels = c("Low (0-1)", "Medium (2-5)", "High (6+)")
-        ) +
-        labs(title = "Presence of Aquatic Vegetation by Structures in the Water", x =
-               "Number of Structures", y = "Number of Parcels") +
-        scale_fill_manual(name = "Aquatic Vegetation Present", values = blues2)
- 
-    } # if statement
+    devel_canopy_plot <-
+      arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
+      ggplot(aes(x = CANOPY_PCT)) +
+      geom_bar(fill = developed_greens, aes(y = (..count..) / sum(..count..))) +
+      scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
+                         limits = c(0, .75)) +
+      xlim(0, 100) +
+      labs(title = "Developed Parcels", x = "Percent Canopy Cover", y =
+             "Percent of Parcels") +
+      theme_minimal()
+    undevel_canopy_plot <-
+      arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
+      ggplot(aes(x = CANOPY_PCT)) +
+      geom_bar(fill = greens[7:9], aes(y = (..count..) / sum(..count..))) +
+      scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
+                         limits = c(0, .75)) +
+      xlim(0, 100) +
+      labs(title = "Undeveloped Parcels", x = "Percent Canopy Cover", y =
+             "") +
+      theme_minimal()
+    # plot side by side
+    grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol=2, 
+                 top=textGrob("Percent Canopy Coverage by Development Status",gp = gpar(fontsize = 15)))
+  })
+  
+  output$avg_canopy_development <- renderPlot({
+    # mean canopy - developed vs undeveloped
+    arbor_parcel %>% 
+      group_by(DEVELOPED) %>% 
+      summarize(mean_canopy = mean(CANOPY_PCT)) %>% 
+      ggplot(aes(x=DEVELOPED,y=mean_canopy)) + 
+      geom_bar(fill=c(greens[9],greens[7]),stat="identity") +
+      labs(title="Average Canopy Coverage per Parcel by Development Status", x="Parcel Development Status",y="Average Canopy Coverage") +
+      scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
+      scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs since the variable is measured in %s: https://stackoverflow.com/questions/50627529/add-a-percent-to-y-axis-labels
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=15))
+  })
+  
+  output$aquatic_veg_structures <- renderPlot({
+    # plot
+    blues <- brewer.pal(n = 9, name = "Blues")
+    blues2 <- blues[c(6, 9)]
+    names(blues2) <-
+      levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
     
-      
-  }) # renderPlot
+    arbor_parcel %>% ggplot(aes(x = STRUCTURES_CLASS, fill = as.factor(FLOAT_OR_EMERG_PRES))) +
+      geom_histogram(stat = "count", position = "dodge") +
+      scale_x_discrete(
+        limits = c("Low", "Medium", "High"),
+        labels = c("Low (0-1)", "Medium (2-5)", "High (6+)")
+      ) +
+      labs(title = "Presence of Aquatic Vegetation by Structures in the Water", x =
+             "Number of Structures", y = "Number of Parcels") +
+      scale_fill_manual(name = "Aquatic Vegetation Present", values = blues2)
+    
+  })# renderPlot
+  
+  output$erosion_plot <- renderPlot({
+    erosion_control %>%
+      ggplot( aes(x=RIPRAP_LEN)) +
+      geom_density(fill="#741b08", color="#de4524") +
+      ggtitle("Amount of Riprap in Parcels") +
+      labs(x = "Rip Rap Length", y = "Density") + 
+      theme_ipsum()
+  })
 }
 
 # Run the application
