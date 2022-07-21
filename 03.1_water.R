@@ -77,3 +77,4 @@ parcel_struc_pivot %>% ggplot(aes(x=Type,y=Count,fill=PARCELID)) + geom_bar(stat
 
 # investigate what kind of veg is here
 select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
+

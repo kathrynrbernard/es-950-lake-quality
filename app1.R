@@ -148,6 +148,8 @@ server <- function(input, output) {
         scale_fill_manual(name = "Aquatic Vegetation Present", values = blues2)
  
     } # if statement
+    
+      
   }) # renderPlot
 }
 

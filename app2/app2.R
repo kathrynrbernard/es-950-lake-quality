@@ -3,6 +3,8 @@ library(tidyverse)
 library(RColorBrewer)
 library(gridExtra)
 library(grid)
+library(hrbrthemes)
+library(shinydashboard)
 
 # Read in data
 parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
@@ -66,21 +68,20 @@ arbor_parcel <-
   )
 
 
-ui <- fluidPage(titlePanel("Big Arbor Vitae Lake Quality"), # Application title
-    mainPanel(tabsetPanel(
-              tabPanel("Land",
-                  fluidRow(style="padding-bottom: 50px; padding-top: 10px;",column(8, plotOutput("land_development_canopy")),
-                          column(4, "Here we are conveying the percent of parcels and their corresponding canopy cover percentage.")),
-                  fluidRow(column(8, plotOutput("avg_canopy_development")),
-                           column(4, "The lake is divided into the highly developed south side and the relatively nondeveloped north side. Here we can see that the nondevelped side has more average canopy cover per parcel when compared to the developed part of the lake."))
-                  ),
-                  tabPanel("Water", plotOutput("aquatic_veg_structures")),
-                  tabPanel("Erosion")
-                  
-                )))
-
-
+ui <- dashboardPage(
+  dashboardHeader(title = "Big Arbor Lake"),
+  dashboardSidebar(),
+  dashboardBody(
+    # Boxes need to be put in a row (or column)
+      box(plotOutput("land_development_canopy")),
+      box(
+        selectInput("features", "Features:",
+                    c("CANOPY_PCT","SHRUB_HERB_PCT")), width = 4
+      )
+      )
+)
 server <- function(input, output) {
+
   output$land_development_canopy <- renderPlot({
     greens <- brewer.pal(n = 9, name = "Greens")
     developed_greens <-
@@ -98,7 +99,7 @@ server <- function(input, output) {
     
     devel_canopy_plot <-
       arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
-      ggplot(aes(x = CANOPY_PCT)) +
+      ggplot(input$features)) +
       geom_bar(fill = developed_greens, aes(y = (..count..) / sum(..count..))) +
       scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
                          limits = c(0, .75)) +
@@ -119,7 +120,7 @@ server <- function(input, output) {
     # plot side by side
     grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol=2, 
                  top=textGrob("Percent Canopy Coverage by Development Status",gp = gpar(fontsize = 15)))
-})
+  })
   
   output$avg_canopy_development <- renderPlot({
     # mean canopy - developed vs undeveloped
@@ -134,27 +135,7 @@ server <- function(input, output) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15))
   })
-  
-  output$aquatic_veg_structures <- renderPlot({
-    # plot
-    blues <- brewer.pal(n = 9, name = "Blues")
-    blues2 <- blues[c(6, 9)]
-    names(blues2) <-
-      levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
-    
-    arbor_parcel %>% ggplot(aes(x = STRUCTURES_CLASS, fill = as.factor(FLOAT_OR_EMERG_PRES))) +
-      geom_histogram(stat = "count", position = "dodge") +
-      scale_x_discrete(
-        limits = c("Low", "Medium", "High"),
-        labels = c("Low (0-1)", "Medium (2-5)", "High (6+)")
-      ) +
-      labs(title = "Presence of Aquatic Vegetation by Structures in the Water", x =
-             "Number of Structures", y = "Number of Parcels") +
-      scale_fill_manual(name = "Aquatic Vegetation Present", values = blues2)
-    
-  }) # renderPlot
 }
 
-# Run the application
-shinyApp(ui = ui, server = server)
 
+shinyApp(ui, server)
