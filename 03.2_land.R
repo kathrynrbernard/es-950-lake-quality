@@ -3,6 +3,7 @@
 library(tidyverse)
 library(gridExtra)
 library(grid)
+library(plotly)
 
 # Read in data
 parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
@@ -155,3 +156,39 @@ arbor_parcel %>%
   theme_minimal()  +
   theme(plot.title = element_text(hjust = 0.5,size=15))
 
+
+# heatmap
+land_cover <- select(arbor_parcel,
+                     c(CANOPY_PCT,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
+rownames(land_cover) <- arbor_parcel$PARCELID
+land_cover <- scale(land_cover)  
+
+# base R
+heatmap(land_cover,Rowv = NA, Colv = NA)
+
+# ggplot
+# data needs to be in a "long" format
+land_cover <- select(arbor_parcel,
+                     c(PARCELID, CANOPY_PCT,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
+land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_to="PCT_COVERAGE")
+
+# ggplot converted to plotly
+p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE))) +
+  geom_tile() +
+  scale_fill_distiller(palette="Greens",direction=1, name="Percent Coverage") +
+  labs(title="Land Cover Percentages per Parcel", x="Vegetation Type", y="Parcel") +
+  scale_x_discrete(labels=c("Canopy", "Shrub/Herb", "Impervious", "Manicured Lawn", "Other")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15),
+        axis.ticks.y=element_blank(),
+        axis.text.y = element_blank())
+ggplotly(p, tooltip="text")
+
+# plotly
+plotly::plot_ly(
+  data = land_cover,
+  x = ~VEG_TYPE, y = ~PARCELID, z = ~PCT_COVERAGE, text = ~paste('Parcel ID: ', PARCELID),
+  colors="Greens",
+  hoverinfo = "text",
+  type = "heatmap"
+)

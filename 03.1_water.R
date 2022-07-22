@@ -81,12 +81,24 @@ for (color in blues){
   i <- i + 2
 }
 blues20[c(19,20)] <- blues[c(9,9)]
+
   
 arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
   geom_histogram(binwidth=1,fill=blues20, color=blues20[20]) +
   labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,size=15))
+
+# lollipop plot of the same data as above
+arbor_parcel %>% 
+  count(STRUCTURES_TOTAL) %>% 
+  ggplot(aes(x=STRUCTURES_TOTAL, y=n)) +
+  geom_segment(aes(x=STRUCTURES_TOTAL,xend=STRUCTURES_TOTAL,y=0,yend=n)) +
+  geom_point(size=5, color=blues20[20],fill=c(blues,blues[9], blues[9]) ,alpha=0.7,shape=21,stroke=1) +
+  labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+  
 
 # then go into 3 parcels specifically to show exactly what kinds they have
 parcel_structures <- select(parcel_dd,c(PARCELID,PIERS_CNT,BOAT_LIFT_CNT,SWIM_RAFT_CNT,BOATHOUSE_CNT,MARINAS_CNT,STRUCTURE_OTHER_CNT))
@@ -115,4 +127,5 @@ parcel_veg_pivot %>% ggplot(aes(x=Type,y=Presence,fill=PARCELID)) +
 parcel_veg %>% ggplot(aes(x=PARCELID,y=FLOATING_VEG_PRES,size=EMERGENT_VEG_PRES)) + 
   geom_point() 
 select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
+
 

@@ -4,6 +4,7 @@ library(tidyverse)
 library(gridExtra)
 library(dplyr)
 library(hrbrthemes)
+library(RColorBrewer)
 
 # Read in data
 parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
@@ -59,16 +60,18 @@ erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
 
 # basic riprap graph to insert for now
 erosion_control %>%
-  ggplot( aes(x=RIPRAP_LEN)) +
+  ggplot(aes(x=RIPRAP_LEN)) +
   geom_density(fill="#741b08", color="#de4524") +
 ggtitle("Amount of Riprap in Parcels") +
   labs(x = "Rip Rap Length", y = "Density") + 
   theme_ipsum()
 
 # 
+tans <- brewer.pal(n=9,name="BrBG")
 erosion_control %>%
-  ggplot( aes(x=RIPRAP_LEN)) +
-  geom_density(fill="#741b08", color="#de4524") +
-  ggtitle("Amount of Riprap in Parcels") +
-  labs(x = "Rip Rap Length", y = "Density") + 
-  theme_ipsum()
+  ggplot(aes(x=RIPRAP_LEN)) +
+  geom_density(fill=tans[3], color=tans[1]) +
+  ggtitle("Length of Riprap across Parcels") +
+  labs(x = "Riprap Length (Feet)", y = "Density") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
