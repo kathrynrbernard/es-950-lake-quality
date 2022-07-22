@@ -93,7 +93,7 @@ arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
 arbor_parcel %>% 
   count(STRUCTURES_TOTAL) %>% 
   ggplot(aes(x=STRUCTURES_TOTAL, y=n)) +
-  geom_segment(aes(x=STRUCTURES_TOTAL,xend=STRUCTURES_TOTAL,y=0,yend=n)) +
+  geom_segment(aes(x=STRUCTURES_TOTAL,xend=STRUCTURES_TOTAL,y=0,yend=n),color=blues[9]) +
   geom_point(size=5, color=blues20[20],fill=c(blues,blues[9], blues[9]) ,alpha=0.7,shape=21,stroke=1) +
   labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
   theme_minimal() +
