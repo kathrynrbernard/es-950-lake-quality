@@ -5,3 +5,4 @@ install.packages("tidyverse") # used for dataframe manipulation (primarily dplyr
 install.packages("lintr")
 install.packages("gridExtra") # used for some plotting
 install.packages("hrbrthemes")
+install.packages("plotly")
