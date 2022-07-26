@@ -1,4 +1,5 @@
-## Setup
+
+# Setup -------------------------------------------------------------------
 # Load packages
 library(tidyverse)
 library(gridExtra)
@@ -14,7 +15,10 @@ arbor_parcel <-
   parcel_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
 arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae")
 
-# Shoreline vegetation - shrubs/herbs/manicured lawn
+
+# Shoreline vegetation ----------------------------------------------------
+
+
 shore_veg <-
   select(
     arbor_parcel,
@@ -48,7 +52,10 @@ shore_veg %>% ggplot(aes(x = MANI_LAWN_PCT)) +
 
 
 
-## Developed vs non developed parcels
+
+# Parcel Development Status -----------------------------------------------
+
+
 
 nondeveloped_ids <-
   c(
@@ -78,7 +85,8 @@ arbor_parcel %>%
 
 ## plotting notes: https://datacarpentry.org/R-ecology-lesson/04-visualization-ggplot2.html
 
-## plot canopy coverage by development status
+
+# Canopy Coverage ---------------------------------------------------------
 # basic plot
 arbor_parcel %>%
   ggplot(aes(x=CANOPY_PCT,fill=DEVELOPED)) + 
@@ -157,7 +165,9 @@ arbor_parcel %>%
   theme(plot.title = element_text(hjust = 0.5,size=15))
 
 
-# heatmap
+
+# Vegetation Heatmap ------------------------------------------------------
+# separate out land cover types
 land_cover <- select(arbor_parcel,
                      c(CANOPY_PCT,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
 rownames(land_cover) <- arbor_parcel$PARCELID
