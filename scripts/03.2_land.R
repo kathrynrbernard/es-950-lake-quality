@@ -5,88 +5,13 @@ library(tidyverse)
 library(gridExtra)
 library(grid)
 library(plotly)
+library(RColorBrewer)
 
-# Read in data
-parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
-woody_data <- read.csv("data/950_woody_habitat_clean.csv")
-
-# Separate our group's lake - Big Arbor Vitae Lake
-arbor_parcel <-
-  parcel_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
-arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae")
-
-
-# Shoreline vegetation ----------------------------------------------------
-
-
-shore_veg <-
-  select(
-    arbor_parcel,
-    c(
-      PARCELID,
-      CANOPY_PCT,
-      SHRUB_PRESENCE,
-      HERB_PRESENCE,
-      SHRUB_HERB_PCT,
-      MANI_LAWN_PCT
-    )
-  )
-
-shore_veg %>% summarize(
-  mean_sh_pct = mean(SHRUB_HERB_PCT),
-  min_sh_pct = min(SHRUB_HERB_PCT),
-  max_sh_pct = max(SHRUB_HERB_PCT),
-  mean_canopy_pct = mean(CANOPY_PCT),
-  min_canopy_pct = min(CANOPY_PCT),
-  max_canopy_pct = max(CANOPY_PCT)
-)
-
-shore_veg %>% ggplot(aes(x = SHRUB_HERB_PCT)) +
-  geom_histogram(binwidth = 5)
-
-shore_veg %>% ggplot(aes(x = CANOPY_PCT)) +
-  geom_histogram(binwidth = 5)
-
-shore_veg %>% ggplot(aes(x = MANI_LAWN_PCT)) +
-  geom_histogram(binwidth = 5)
-
-
-
-
-# Parcel Development Status -----------------------------------------------
-
-
-
-nondeveloped_ids <-
-  c(
-    "2-2562-02",
-    "2-2562-01",
-    "2-2562",
-    "2-2556",
-    "2-2553-06",
-    "2-2565",
-    "2-2566",
-    "2-2582",
-    "2-2597",
-    "2-2648"
-  )
-
-arbor_parcel$DEVELOPED <-
-  !arbor_parcel$PARCELID %in% nondeveloped_ids
-
-arbor_parcel %>%
-  group_by(DEVELOPED) %>%
-  summarize(
-    mean_canopy = mean(CANOPY_PCT),
-    mean_erosion = mean(GREAT_ERO_LEN),
-    mean_float = mean(FLOATING_VEG_PRES),
-    mean_EMERG = mean(EMERGENT_VEG_PRES)
-  )
-
+# Plots -------------------------------------------------------------------
 ## plotting notes: https://datacarpentry.org/R-ecology-lesson/04-visualization-ggplot2.html
 
 
-# Canopy Coverage ---------------------------------------------------------
+# Canopy Coverage Plots --------------------------------------------------
 # basic plot
 arbor_parcel %>%
   ggplot(aes(x=CANOPY_PCT,fill=DEVELOPED)) + 
@@ -160,7 +85,7 @@ arbor_parcel %>%
   geom_bar(fill=c(greens[7],greens[3]),color=greens[9], stat="identity") +
   labs(x="Parcel Development Status",y="Average Canopy Coverage",title="Average Canopy Cover by Parcel Development Status") +
   scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
-  scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs since the variable is measured in %s: https://stackoverflow.com/questions/50627529/add-a-percent-to-y-axis-labels
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
   theme_minimal()  +
   theme(plot.title = element_text(hjust = 0.5,size=15))
 
@@ -169,7 +94,7 @@ arbor_parcel %>%
 # Vegetation Heatmap ------------------------------------------------------
 # separate out land cover types
 land_cover <- select(arbor_parcel,
-                     c(CANOPY_PCT,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
+                     c(SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT)) # from Sam - don't include canopy percent here
 rownames(land_cover) <- arbor_parcel$PARCELID
 land_cover <- scale(land_cover)  
 
@@ -179,10 +104,10 @@ heatmap(land_cover,Rowv = NA, Colv = NA)
 # ggplot
 # data needs to be in a "long" format
 land_cover <- select(arbor_parcel,
-                     c(PARCELID, CANOPY_PCT,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
+                     c(PARCELID, SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
 land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_to="PCT_COVERAGE")
 
-# ggplot converted to plotly
+# ggplot converted to plotly - final plot
 p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "%", "\nPercent Covered: ",PCT_COVERAGE))) +
   geom_tile() +
   scale_fill_distiller(palette="Greens",direction=1, name="Percent Coverage") +
@@ -202,3 +127,55 @@ plotly::plot_ly(
   hoverinfo = "text",
   type = "heatmap"
 )
+
+
+# Shrub/Herb Coverage Plots -----------------------------------------------
+## % of parcels with each % coverage, split by development status
+greens <- brewer.pal(n=9,name="Greens")
+greens18 <- greens # developed parcels
+i <- 1
+for (color in greens){
+  greens18[i] <- color
+  greens18[i+1] <- color
+  i <- i + 2
+}
+
+greens4 <- greens[c(5,7,9,9)] # undeveloped parcels
+
+devel_sh_plot <-
+  arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
+  ggplot(aes(x = SHRUB_HERB_PCT)) +
+  geom_bar(fill = greens18, color=greens[9], aes(y = (..count..) / sum(..count..))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
+                     limits = c(0, .45)) +
+  xlim(0, 100) +
+  labs(title = "Developed Parcels", x = "Percent Shrub/Herbaceous Cover", y =
+         "Percent of Parcels") +
+  theme_minimal()
+
+undevel_sh_plot <-
+  arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
+  ggplot(aes(x = SHRUB_HERB_PCT)) +
+  geom_bar(fill = greens4, color=greens[9], aes(y = (..count..) / sum(..count..))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
+                     limits = c(0, .45)) +
+  xlim(0, 100) +
+  labs(title = "Undeveloped Parcels", x = "Percent Shrub/Herbaceous Cover", y =
+         "") +
+  theme_minimal()
+# plot side by side
+grid.arrange(devel_sh_plot, undevel_sh_plot, ncol=2, 
+             top=textGrob("Percent Shrub/Herbaceous Coverage by Development Status",gp = gpar(fontsize = 15)))
+
+
+## mean shrub/herb coverage, split by development status
+arbor_parcel %>% 
+  group_by(DEVELOPED) %>% 
+  summarize(mean_sh = mean(SHRUB_HERB_PCT)) %>% 
+  ggplot(aes(x=DEVELOPED,y=mean_sh)) + 
+  geom_bar(fill=c(greens[7],greens[3]),color=greens[9], stat="identity") +
+  labs(x="Parcel Development Status",y="Average Shrub/Herbaceous Coverage",title="Average Shrub/Herbaceous Cover by Parcel Development Status") +
+  scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs 
+  theme_minimal()  +
+  theme(plot.title = element_text(hjust = 0.5,size=15))

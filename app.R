@@ -31,21 +31,6 @@ nondeveloped_ids <-
 arbor_parcel$DEVELOPED <-
   !arbor_parcel$PARCELID %in% nondeveloped_ids
 
-# land processing - colors
-greens <- brewer.pal(n = 9, name = "Greens")
-developed_greens <-
-  c(
-    rep(greens[1], 3),
-    rep(greens[2], 3),
-    rep(greens[3], 2),
-    rep(greens[4], 2),
-    rep(greens[5], 2),
-    rep(greens[6], 2),
-    rep(greens[7], 2),
-    greens[8],
-    rep(greens[9], 2)
-  )
-
 # water processing
 # colors
 blues <- brewer.pal(n=9,name="Blues")
@@ -113,12 +98,12 @@ ui <- fluidPage(titlePanel("Big Arbor Vitae Lake Quality"), # Application title
                                     column(4, "This heatmap shows the percentage of each type of land cover for each parcel.
                                            Hovering over a square on the heatmap will display the parcel id and percent coverage for the land cover type.")),
                            fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotOutput("land_development_canopy")),
-                                    column(4, "Here, we can compare the percentage of canopy coverage on parcels that are developed and non developed.
-                                           We can see that there is a high percentage of canopy cover on non developed land, but also a good amount on developed land.")),
+                                    column(8, plotOutput("land_development_sh")),
+                                    column(4, "Here, we can compare the percentage of shrub/herbaceous coverage on parcels that are developed and non developed.
+                                           We can see that there is a high percentage of cover on non developed land, but also a good amount on developed land.")),
                            fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotOutput("avg_canopy_development")),
-                                    column(4, "This is Average Canopy Coverage per Parcel by Development Status. "))
+                                    column(8, plotOutput("avg_sh_development")),
+                                    column(4, "This is the mean shrub/herbaceous coverage percent per parcel, split by development status."))
                   ),
                   tabPanel("Water",
                            fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
@@ -147,17 +132,16 @@ ui <- fluidPage(titlePanel("Big Arbor Vitae Lake Quality"), # Application title
 server <- function(input, output) {
   
   output$land_cover_heatmap <- renderPlotly({ # need to use renderPlotly instead of renderPlot
-    # data needs to be in a "long" format
     land_cover <- select(arbor_parcel,
-                         c(PARCELID, CANOPY_PCT,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
+                         c(PARCELID, SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
     land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_to="PCT_COVERAGE")
     
-    # ggplot converted to plotly
-    p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE))) +
+    # ggplot converted to plotly - final plot
+    p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "%", "\nPercent Covered: ",PCT_COVERAGE))) +
       geom_tile() +
       scale_fill_distiller(palette="Greens",direction=1, name="Percent Coverage") +
       labs(title="Land Cover Percentages per Parcel", x="Vegetation Type", y="Parcel") +
-      scale_x_discrete(labels=c("Canopy", "Shrub/Herb", "Impervious", "Lawn", "Other")) +
+      scale_x_discrete(labels=c("Canopy", "Shrub/Herb", "Impervious", "Manicured Lawn", "Other")) +
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15),
             axis.ticks.y=element_blank(),
@@ -165,44 +149,57 @@ server <- function(input, output) {
     ggplotly(p, tooltip="text")
   })
   
-  output$land_development_canopy <- renderPlot({
+  output$land_development_sh <- renderPlot({
     
-    devel_canopy_plot <-
+    ## % of parcels with each % coverage, split by development status
+    greens <- brewer.pal(n=9,name="Greens")
+    greens18 <- greens # developed parcels
+    i <- 1
+    for (color in greens){
+      greens18[i] <- color
+      greens18[i+1] <- color
+      i <- i + 2
+    }
+    
+    greens4 <- greens[c(5,7,9,9)] # undeveloped parcels
+    
+    devel_sh_plot <-
       arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
-      ggplot(aes(x = CANOPY_PCT)) +
-      geom_bar(fill = developed_greens, aes(y = (..count..) / sum(..count..))) +
+      ggplot(aes(x = SHRUB_HERB_PCT)) +
+      geom_bar(fill = greens18, color=greens[9], aes(y = (..count..) / sum(..count..))) +
       scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                         limits = c(0, .75)) +
+                         limits = c(0, .45)) +
       xlim(0, 100) +
-      labs(title = "Developed Parcels", x = "Percent Canopy Cover", y =
+      labs(title = "Developed Parcels", x = "Percent Shrub/Herbaceous Cover", y =
              "Percent of Parcels") +
       theme_minimal()
-    undevel_canopy_plot <-
+    
+    undevel_sh_plot <-
       arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
-      ggplot(aes(x = CANOPY_PCT)) +
-      geom_bar(fill = greens[7:9], aes(y = (..count..) / sum(..count..))) +
+      ggplot(aes(x = SHRUB_HERB_PCT)) +
+      geom_bar(fill = greens4, color=greens[9], aes(y = (..count..) / sum(..count..))) +
       scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                         limits = c(0, .75)) +
+                         limits = c(0, .45)) +
       xlim(0, 100) +
-      labs(title = "Undeveloped Parcels", x = "Percent Canopy Cover", y =
+      labs(title = "Undeveloped Parcels", x = "Percent Shrub/Herbaceous Cover", y =
              "") +
       theme_minimal()
     # plot side by side
-    grid.arrange(devel_canopy_plot, undevel_canopy_plot, ncol=2, 
-                 top=textGrob("Percent Canopy Coverage by Development Status",gp = gpar(fontsize = 15)))
+    grid.arrange(devel_sh_plot, undevel_sh_plot, ncol=2, 
+                 top=textGrob("Percent Shrub/Herbaceous Coverage by Development Status",gp = gpar(fontsize = 15)))
   })
   
-  output$avg_canopy_development <- renderPlot({
-    # mean canopy - developed vs undeveloped
+  output$avg_sh_development <- renderPlot({
+    ## mean shrub/herb coverage, split by development status
     arbor_parcel %>% 
       group_by(DEVELOPED) %>% 
-      summarize(mean_canopy = mean(CANOPY_PCT)) %>% 
-      ggplot(aes(x=DEVELOPED,y=mean_canopy)) + 
-      geom_bar(fill=c(greens[9],greens[7]),stat="identity") +
-      labs(title="Average Canopy Coverage per Parcel by Development Status", x="Parcel Development Status",y="Average Canopy Coverage") +
+      summarize(mean_sh = mean(SHRUB_HERB_PCT)) %>% 
+      ggplot(aes(x=DEVELOPED,y=mean_sh)) + 
+      geom_bar(fill=c(greens[7],greens[3]),color=greens[9], stat="identity") +
+      labs(x="Parcel Development Status",y="Average Shrub/Herbaceous Coverage",title="Average Shrub/Herbaceous Cover by Parcel Development Status") +
       scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
-      scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs since the variable is measured in %s: https://stackoverflow.com/questions/50627529/add-a-percent-to-y-axis-labels
-      theme_minimal() +
+      scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs 
+      theme_minimal()  +
       theme(plot.title = element_text(hjust = 0.5,size=15))
   })
   
