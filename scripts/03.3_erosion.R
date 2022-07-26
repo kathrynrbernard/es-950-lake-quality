@@ -1,4 +1,5 @@
-## Setup
+
+# Setup -------------------------------------------------------------------
 # Load packages
 library(tidyverse)
 library(gridExtra)
@@ -6,17 +7,8 @@ library(dplyr)
 library(hrbrthemes)
 library(RColorBrewer)
 
-# Read in data
-parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
-woody_data <- read.csv("data/950_woody_habitat_clean.csv")
 
-# Separate our group's lake - Big Arbor Vitae Lake
-arbor_parcel <-
-  parcel_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
-arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae")
-
-
-# Erosion control structures vs. risks to erosion
+# Preprocessing -----------------------------------------------------------
 erosion_control <-
   select(arbor_parcel,
          c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
@@ -58,7 +50,8 @@ erosion_control %>% summarize(
 erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
   geom_histogram(binwidth = 5)
 
-# basic riprap graph to insert for now
+
+# Length of Riprap Across Parcels Plot ------------------------------------
 erosion_control %>%
   ggplot(aes(x=RIPRAP_LEN)) +
   geom_density(fill="#741b08", color="#de4524") +
@@ -66,7 +59,7 @@ ggtitle("Amount of Riprap in Parcels") +
   labs(x = "Rip Rap Length", y = "Density") + 
   theme_ipsum()
 
-# 
+# additional colors
 tans <- brewer.pal(n=9,name="BrBG")
 erosion_control %>%
   ggplot(aes(x=RIPRAP_LEN)) +

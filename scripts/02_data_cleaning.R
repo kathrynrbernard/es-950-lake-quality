@@ -3,15 +3,17 @@
 # Inputs: Two files - the parcel habitat data and the woody habitat data
 # Outputs: Two files - a clean version of each input file
 
-## Setup
+
+# Setup -------------------------------------------------------------------
 # Load necessary packages
 library(tidyverse)
 
-### Parcel Dataset ###
-# Read in data 
+
+# Read in Parcel Data ------------------------------------------------------------
 parcel_data_raw <- read.csv("data/950_parcel_habitat.csv")
 
-## Preliminary investigation
+
+# Preliminary Investigation -----------------------------------------------
 # Variables
 colnames(parcel_data_raw)
 
@@ -34,16 +36,18 @@ parcel_data_raw <- parcel_data_raw %>% mutate(across(.cols=all_of(to_logical), .
 # Check the structure again to make sure everything was converted correctly
 str(parcel_data_raw) 
 
-## Output
+
+# Output ------------------------------------------------------------------
 # Write out a clean file with the new data types
 write.csv(parcel_data_raw, "data/950_parcel_habitat_clean.csv")
 
 
-### Woody Habitat Dataset ###
-# Read in data
+
+# Read in Woody Habitat Data ----------------------------------------------
 woody_data_raw <- read.csv("data/950_woody_habitat.csv")
 
-## Preliminary investigation
+
+# Preliminary Investigation -----------------------------------------------
 # Variables
 colnames(woody_data_raw)
 
@@ -53,6 +57,7 @@ str(woody_data_raw) # All these datatypes look correct - no conversions are need
 # Parcel mapping
 ## TODO - map the log data to parcels
 
-## Output
+
+# Output ------------------------------------------------------------------
 # Write out a clean file for naming consistency's sake
 write.csv(woody_data_raw, "data/950_woody_habitat_clean.csv")
