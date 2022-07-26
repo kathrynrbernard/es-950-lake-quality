@@ -1,18 +1,14 @@
-## Setup
+
+# Setup -------------------------------------------------------------------
 # Load packages
 library(tidyverse)
 library(gridExtra)
 
-# Read in data
-parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
-woody_data <- read.csv("data/950_woody_habitat_clean.csv")
 
-# Separate our group's lake - Big Arbor Vitae Lake
-arbor_parcel <-
-  parcel_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
-arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae")
 
-# Aquatic vegetation
+
+# Additional processing ---------------------------------------------------
+# define aquatic vegetation
 aquatic_veg <-
   select(arbor_parcel,
          c(
@@ -22,7 +18,7 @@ aquatic_veg <-
            FLOAT_EMERG_PRES
          ))
 
-# Structures in the water
+# define aquatic structures
 aquatic_structures <-
   select(
     arbor_parcel,
@@ -46,10 +42,10 @@ arbor_parcel <-
 arbor_parcel <- arbor_parcel %>% mutate(FLOAT_OR_EMERG_PRES = case_when(EMERGENT_VEG_PRES==TRUE | FLOATING_VEG_PRES==TRUE ~ TRUE,
                                                                         EMERGENT_VEG_PRES==FALSE & FLOATING_VEG_PRES==FALSE ~ FALSE))
 
-# want to plot number of structures vs presence of aquatic vegetation
-# would be easier as pct of veg but we don't have that
 
-# one idea- group number of structures into low/med/high and have 3 bar plots
+
+# Structures vs Vegetation Presence Plot ----------------------------------
+# roup number of structures into low/med/high and have 3 bar plots
 # low = 0-1; med=2-5, high=6+
 arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
   geom_histogram(binwidth=2)
@@ -71,7 +67,9 @@ arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=as.factor(FLOAT_OR_EMERG_PR
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,size=15))
 
-# parcel drilldown - show distribution of total numbers of aquatic structures for each parcel
+
+
+# Number of Structures per Parcel Plot  --------------------------------------------------
 # color manipulation to make it the right length
 blues20 <- blues
 i <- 1
@@ -100,7 +98,9 @@ arbor_parcel %>%
   theme(plot.title = element_text(hjust = 0.5,size=15))
   
 
-# then go into 3 parcels specifically to show exactly what kinds they have
+
+# Parcel Drilldown - Structures Plot --------------------------------------
+# what specific types of structures are on each of the 3 specified parcels
 parcel_structures <- select(parcel_dd,c(PARCELID,PIERS_CNT,BOAT_LIFT_CNT,SWIM_RAFT_CNT,BOATHOUSE_CNT,MARINAS_CNT,STRUCTURE_OTHER_CNT))
 parcel_struc_pivot <- pivot_longer(parcel_structures,cols=!PARCELID,names_to = "Type", values_to = "Count")
 
@@ -117,7 +117,8 @@ parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) +
   theme(plot.title = element_text(hjust = 0.5,size=15))
   
 
-# investigate what kind of veg is here
+
+# Parcel Drilldown - Vegetation Presence Plot -----------------------------
 parcel_veg <- select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
 parcel_veg_pivot <- pivot_longer(parcel_veg, cols=!PARCELID, names_to="Type", values_to="Presence")
 parcel_veg_pivot %>% ggplot(aes(x=Type,y=Presence,fill=PARCELID)) +
