@@ -1,167 +1,87 @@
-library(shiny)
-library(tidyverse)
-library(RColorBrewer)
-library(gridExtra)
-library(grid)
-library(plotly)
+# do pre processing
+source("shiny_helper.R")
 
-# Read in data
-parcel_data <- read.csv("data/950_parcel_habitat_clean.csv")
-woody_data <- read.csv("data/950_woody_habitat_clean.csv")
-
-# Separate our group's lake - Big Arbor Vitae Lake
-arbor_parcel <-
-  parcel_data %>% filter(LAKE_NAME == "Big Arbor Vitae Lake")
-arbor_woody <- woody_data %>% filter(LAKE_NAME == "Big Arbor Vitae")
-
-# Add development column
-nondeveloped_ids <-
-  c(
-    "2-2562-02",
-    "2-2562-01",
-    "2-2562",
-    "2-2556",
-    "2-2553-06",
-    "2-2565",
-    "2-2566",
-    "2-2582",
-    "2-2597",
-    "2-2648"
-  )
-arbor_parcel$DEVELOPED <-
-  !arbor_parcel$PARCELID %in% nondeveloped_ids
-
-# water processing
-# colors
-blues <- brewer.pal(n=9,name="Blues")
-
-# data frames
-aquatic_structures <-
-  select(
-    arbor_parcel,
-    c(
-      PARCELID,
-      PIERS_CNT,
-      BOAT_LIFT_CNT,
-      SWIM_RAFT_CNT,
-      BOATHOUSE_CNT,
-      MARINAS_CNT,
-      STRUCTURE_OTHER_CNT
+ui <- fluidPage(
+  titlePanel("Big Arbor Vitae Lake Quality"), # Application title
+  tabsetPanel(
+     tabPanel("Home",
+              h2("About this Page"),
+              HTML("This website displays information about Big Arbor Vitae Lake. All the data visualized here was collected by the 
+              Wisconsin Department of Natural Resources as part of their shoreline monitoring program.
+              The graphs show metrics related to overall lake quality as well as data from selected parcels.
+              Where appropriate, we include recommendations for the lake association or landowners."),
+              h2("Navigating the Website"),
+              HTML("The app contains three main categories of visualizations: Land, Water, and Erosion.
+              These categories correspond to the riparian zone, the littoral zone, and the bank zone of the lake.
+              Each category is displayed on a separate tab within the website. Click through the tabs at the top of the page
+              to view the graphs for each category."),
+              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600))
+              ),
+       tabPanel("Land",
+                h3("The Riparian Zone at a Glance"),
+                HTML("Let's start by taking a look at what types of land cover are present in the riparian zone of Big Arbor."),
+               fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                column(7, plotlyOutput("land_cover_heatmap")), # need to use plotlyOutput instead of plotOutput
+                column(5, "This heatmap shows the percentage of each type of land cover for each parcel.
+                         Hovering over a square on the heatmap will display the parcel id and percent coverage for the land cover type.
+                          There doesn't seem to be much shrub and herbaceous covering on the majority of parcels on this lake.
+                          Shrubs are small-ish woody plants and herbaceous plants are things like grasses - both of these types of 
+                          land cover are beneficial for controlling erosion, and native plantings are an excellent habitat for
+                          animals living near the lakeshore.")),
+               h3("Breaking it Down"),
+               HTML(""),
+               fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                column(7, plotOutput("land_development_sh")),
+                column(5, "Here, we can compare the percentage of shrub/herbaceous coverage on parcels that are developed and non developed.
+                          We can see that there is a high percentage of cover on non developed land, but also a good amount on developed land.")),
+               fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                 column(7, plotOutput("avg_sh_lawn_development")),
+                 column(5, "This is the mean shrub/herbaceous coverage percent per parcel, split by development status."))
+        ),
+        tabPanel("Water",
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                  column(7, plotOutput("aquatic_veg_structures")),
+                  column(5, "Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
+                             We can see that there is very little vegetation present on Big Arbor Lake. Is this a product of removal, or an indication of lake quality issues?")),
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                  column(7,plotOutput("aquatic_parcel_structures")),
+                  column(5,"This graph shows the distribution of number of structures in the littoral zone across the entire lake.
+                            Most parcels on the lake have 1-3 structures in the water on their property. A few parcels have 4-6 aquatic structures,
+                            and there are a handful of parcels with many structures.")),
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                  column(7,plotOutput("aquatic_parcel_struc_dd")),
+                  column(5,"Let's take a deeper dive into three parcels of interest. One of these parcels has a lot of structures, one has a handful,
+                            and one doesn't have any structures in the littoral zone at all.")),
+       ),
+       tabPanel("Erosion", 
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                  column(7, plotOutput("erosion_plot")),
+                   column(5, "This density graph shows the length of riprap areas present on the lake.")),
+       ),
     )
   )
-arbor_parcel <-
-  arbor_parcel %>% mutate(STRUCTURES_TOTAL = rowSums(aquatic_structures[, -(1)]))
-arbor_parcel <- arbor_parcel %>% mutate(
-  STRUCTURES_CLASS =
-    case_when(
-      STRUCTURES_TOTAL <= 1 ~ "Low",
-      STRUCTURES_TOTAL > 1 &
-        STRUCTURES_TOTAL <= 5 ~ "Medium",
-      STRUCTURES_TOTAL > 5 ~ "High"
-    )
-)
-arbor_parcel <-
-  arbor_parcel %>% mutate(
-    FLOAT_OR_EMERG_PRES = case_when(
-      EMERGENT_VEG_PRES == TRUE | FLOATING_VEG_PRES == TRUE ~ TRUE,
-      EMERGENT_VEG_PRES ==
-        FALSE & FLOATING_VEG_PRES == FALSE ~ FALSE
-    )
-  )
-
-# erosion processing
-tans <- brewer.pal(n=9,name="BrBG")
-
-# parcel drilldown
-parcel_one <- arbor_parcel[arbor_parcel$STRUCTURES_TOTAL==max(arbor_parcel$STRUCTURES_TOTAL),]
-parcel_two <- arbor_parcel[22,]
-parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2649",]
-parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
-
-
-ui <- fluidPage(titlePanel("Big Arbor Vitae Lake Quality"), # Application title
-                mainPanel(tabsetPanel(
-                  tabPanel("Home",
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(12, "This website displays information about Big Arbor Vitae Lake. All data visualized here was collected by the
-                                           Wisconsin Department of Natural Resources as part of their shoreline monitoring program.
-                                           The graphs show metrics related to overall lake quality as well as data from selected parcels.
-                                           Where appropriate, we include recommendations for the lake association or landowners.
-                                           The app contains three main categories of visualizations: Land, Water, and Erosion.
-                                           These categories correspond to the riparian zone, the littoral zone, and the bank zone. Each category is displayed on a separate tab within the app. "
-                                 )),
-                           img(src='BigArborAerial.png', align = "center", width=600)
-                           ),
-                  tabPanel("Land",
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotlyOutput("land_cover_heatmap")), # need to use plotlyOutput
-                                    column(4, "This heatmap shows the percentage of each type of land cover for each parcel.
-                                           Hovering over a square on the heatmap will display the parcel id and percent coverage for the land cover type.")),
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotOutput("land_development_sh")),
-                                    column(4, "Here, we can compare the percentage of shrub/herbaceous coverage on parcels that are developed and non developed.
-                                           We can see that there is a high percentage of cover on non developed land, but also a good amount on developed land.")),
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotOutput("avg_sh_development")),
-                                    column(4, "This is the mean shrub/herbaceous coverage percent per parcel, split by development status."))
-                  ),
-                  tabPanel("Water",
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotOutput("aquatic_veg_structures")),
-                                    column(4, "Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
-                                           We can see that there is very little vegetation present on Big Arbor Lake. Is this a product of removal, or an indication of lake quality issues?")),
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8,plotOutput("aquatic_parcel_structures")),
-                                    column(4,"This graph shows the distribution of number of structures in the littoral zone across the entire lake.
-                                  Most parcels on the lake have 1-3 structures in the water on their property. A few parcels have 4-6 aquatic structures,
-                                  and there are a handful of parcels with many structures.")),
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8,plotOutput("aquatic_parcel_struc_dd")),
-                                    column(4,"Let's take a deeper dive into three parcels of interest. One of these parcels has a lot of structures, one has a handful,
-                                  and one doesn't have any structures in the littoral zone at all.")),
-                  ),
-                  tabPanel("Erosion", 
-                           fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                                    column(8, plotOutput("erosion_plot")),
-                                    column(4, "This density graph shows the length of riprap areas present on the lake.")),
-                 ),
-                  
-                ))) 
 
 
 server <- function(input, output) {
   
   output$land_cover_heatmap <- renderPlotly({ # need to use renderPlotly instead of renderPlot
-    land_cover <- select(arbor_parcel,
-                         c(PARCELID, SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
-    land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_to="PCT_COVERAGE")
     
-    # ggplot converted to plotly - final plot
-    p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "%", "\nPercent Covered: ",PCT_COVERAGE))) +
+    # ggplot converted to plotly (plotly allows a hover bubble for displaying parcel id and percentage)
+    p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE,"%"))) +
       geom_tile() +
       scale_fill_distiller(palette="Greens",direction=1, name="Percent Coverage") +
       labs(title="Land Cover Percentages per Parcel", x="Vegetation Type", y="Parcel") +
-      scale_x_discrete(labels=c("Canopy", "Shrub/Herb", "Impervious", "Manicured Lawn", "Other")) +
+      scale_x_discrete(limits=c("SHRUB_HERB_PCT", "MANI_LAWN_PCT", "IMPERVIOUS_PCT", "OTHER_PCT"),
+                       labels=c("Shrub/Herb", "Manicured Lawn", "Impervious", "Other")) +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15),
+      theme(text = element_text(family="arial"),
+            plot.title = element_text(hjust = 0.5,size=15),
             axis.ticks.y=element_blank(),
             axis.text.y = element_blank())
     ggplotly(p, tooltip="text")
   })
   
   output$land_development_sh <- renderPlot({
-    
-    ## % of parcels with each % coverage, split by development status
-    greens <- brewer.pal(n=9,name="Greens")
-    greens18 <- greens # developed parcels
-    i <- 1
-    for (color in greens){
-      greens18[i] <- color
-      greens18[i+1] <- color
-      i <- i + 2
-    }
-    
-    greens4 <- greens[c(5,7,9,9)] # undeveloped parcels
     
     devel_sh_plot <-
       arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
@@ -172,7 +92,9 @@ server <- function(input, output) {
       xlim(0, 100) +
       labs(title = "Developed Parcels", x = "Percent Shrub/Herbaceous Cover", y =
              "Percent of Parcels") +
-      theme_minimal()
+      theme_minimal() +
+      theme(axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15))
     
     undevel_sh_plot <-
       arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
@@ -183,20 +105,25 @@ server <- function(input, output) {
       xlim(0, 100) +
       labs(title = "Undeveloped Parcels", x = "Percent Shrub/Herbaceous Cover", y =
              "") +
-      theme_minimal()
+      theme_minimal() +
+      theme(axis.title.x = element_text(size=15))
     # plot side by side
     grid.arrange(devel_sh_plot, undevel_sh_plot, ncol=2, 
-                 top=textGrob("Percent Shrub/Herbaceous Coverage by Development Status",gp = gpar(fontsize = 15)))
+                 top=textGrob("Percent Shrub/Herbaceous Coverage by Development Status",gp = gpar(fontsize = 20)))
   })
   
-  output$avg_sh_development <- renderPlot({
-    ## mean shrub/herb coverage, split by development status
+  output$avg_sh_lawn_development <- renderPlot({
+    ## mean shrub/herb and manicured lawn coverage, split by development status
     arbor_parcel %>% 
       group_by(DEVELOPED) %>% 
-      summarize(mean_sh = mean(SHRUB_HERB_PCT)) %>% 
-      ggplot(aes(x=DEVELOPED,y=mean_sh)) + 
-      geom_bar(fill=c(greens[7],greens[3]),color=greens[9], stat="identity") +
-      labs(x="Parcel Development Status",y="Average Shrub/Herbaceous Coverage",title="Average Shrub/Herbaceous Cover by Parcel Development Status") +
+      summarize(shrub_herb=mean(SHRUB_HERB_PCT),
+                lawn=mean(MANI_LAWN_PCT)) %>% 
+      pivot_longer(!DEVELOPED,names_to="LAND_COVER",values_to="MEAN") %>% 
+      ggplot(aes(x=DEVELOPED,y=MEAN,fill=LAND_COVER)) +
+      geom_bar(stat="identity", position="dodge",color=greens[9]) +
+      scale_fill_manual(values=c(greens[3], greens[7]),labels=c("Manicured Lawn", "Shrub/Herbaceous")) +
+      labs(x="Parcel Development Status",y="Average Percent Coverage",title="Average Shrub/Herbaceous and Manicured Lawn Cover by Parcel Development Status",
+           fill="Land Cover Type") +
       scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
       scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs 
       theme_minimal()  +
@@ -204,9 +131,6 @@ server <- function(input, output) {
   })
   
   output$aquatic_veg_structures <- renderPlot({
-    # color setup
-    blues2 <- blues[c(6,9)]
-    names(blues2) <- levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
     
     # plot number of structures and veg presence
     arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=as.factor(FLOAT_OR_EMERG_PRES))) +
@@ -216,20 +140,13 @@ server <- function(input, output) {
       scale_fill_manual(name="Aquatic Vegetation Present", values = blues2) +
       guides(color="none") +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15))
+      theme(plot.title = element_text(hjust = 0.5,size=15),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15))
     
-  }) # renderPlot
+  })
   
   output$aquatic_parcel_structures <- renderPlot({
-    # color setup
-    blues20 <- blues
-    i <- 1
-    for (color in blues){
-      blues20[i] <- color
-      blues20[i+1] <- color
-      i <- i + 2
-    }
-    blues20[c(19,20)] <- blues[c(9,9)]
     
     # plot total number of structures
     arbor_parcel %>% 
@@ -243,8 +160,7 @@ server <- function(input, output) {
   })
   
   output$aquatic_parcel_struc_dd <- renderPlot({
-    parcel_structures <- select(parcel_dd,c(PARCELID,PIERS_CNT,BOAT_LIFT_CNT,SWIM_RAFT_CNT,BOATHOUSE_CNT,MARINAS_CNT,STRUCTURE_OTHER_CNT))
-    parcel_struc_pivot <- pivot_longer(parcel_structures,cols=!PARCELID,names_to = "Type", values_to = "Count")
+
     parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) + 
       geom_bar(stat="identity", position="dodge", color=blues[9]) +
       scale_x_continuous(breaks=seq(0:10)) + # show axis in whole numbers
@@ -259,9 +175,6 @@ server <- function(input, output) {
   })
   
   output$erosion_plot <- renderPlot({
-    erosion_control <-
-      select(arbor_parcel,
-             c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
     
     erosion_control %>%
       ggplot(aes(x=RIPRAP_LEN)) +

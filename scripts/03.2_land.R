@@ -107,14 +107,17 @@ land_cover <- select(arbor_parcel,
                      c(PARCELID, SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
 land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_to="PCT_COVERAGE")
 
+
 # ggplot converted to plotly - final plot
-p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "%", "\nPercent Covered: ",PCT_COVERAGE))) +
+p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE,"%"))) +
   geom_tile() +
   scale_fill_distiller(palette="Greens",direction=1, name="Percent Coverage") +
   labs(title="Land Cover Percentages per Parcel", x="Vegetation Type", y="Parcel") +
-  scale_x_discrete(labels=c("Canopy", "Shrub/Herb", "Impervious", "Manicured Lawn", "Other")) +
+  scale_x_discrete(limits=c("SHRUB_HERB_PCT", "MANI_LAWN_PCT", "IMPERVIOUS_PCT", "OTHER_PCT"),
+                   labels=c("Shrub/Herb", "Manicured Lawn", "Impervious", "Other")) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5,size=15),
+  theme(text = element_text(family="arial"),
+      plot.title = element_text(hjust = 0.5,size=15),
         axis.ticks.y=element_blank(),
         axis.text.y = element_blank())
 ggplotly(p, tooltip="text")
@@ -151,12 +154,12 @@ devel_sh_plot <-
   xlim(0, 100) +
   labs(title = "Developed Parcels", x = "Percent Shrub/Herbaceous Cover", y =
          "Percent of Parcels") +
-  theme_minimal()
+  theme_minimal() 
 
 undevel_sh_plot <-
   arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
   ggplot(aes(x = SHRUB_HERB_PCT)) +
-  geom_bar(fill = greens4, color=greens[9], aes(y = (..count..) / sum(..count..))) +
+  geom_bar(fill=greens18,color=greens[9],aes(y = (..count..) / sum(..count..))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
                      limits = c(0, .45)) +
   xlim(0, 100) +
@@ -179,3 +182,30 @@ arbor_parcel %>%
   scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs 
   theme_minimal()  +
   theme(plot.title = element_text(hjust = 0.5,size=15))
+
+
+
+# Shrub/Herb and Manicured Lawn Comparisons -------------------------------
+# Mean shrub/herb and mean manicured lawn by development status
+
+arbor_parcel %>% 
+  group_by(DEVELOPED) %>% 
+  summarize(shrub_herb=mean(SHRUB_HERB_PCT),
+             lawn=mean(MANI_LAWN_PCT)) %>% 
+  pivot_longer(!DEVELOPED,names_to="LAND_COVER",values_to="MEAN") %>% 
+  ggplot(aes(x=DEVELOPED,y=MEAN,fill=LAND_COVER)) +
+  geom_bar(stat="identity", position="dodge",color=greens[9]) +
+  scale_fill_manual(values=c(greens[3], greens[7]),labels=c("Manicured Lawn", "Shrub/Herbaceous")) +
+  labs(x="Parcel Development Status",y="Average Percent Coverage",title="Average Shrub/Herbaceous and Manicured Lawn Cover by Parcel Development Status",
+       fill="Land Cover Type") +
+  scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs 
+  theme_minimal()  +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+
+
+
+
+
+
+
