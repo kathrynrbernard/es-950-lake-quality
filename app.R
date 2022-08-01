@@ -6,37 +6,43 @@ ui <- fluidPage(
   tabsetPanel(
      tabPanel("Home",
               h2("About this Page"),
-              HTML("This website displays information about Big Arbor Vitae Lake. All the data visualized here was collected by the 
+              p("This website displays information about Big Arbor Vitae Lake. All the data visualized here was collected by the 
               Wisconsin Department of Natural Resources as part of their shoreline monitoring program.
               The graphs show metrics related to overall lake quality as well as data from selected parcels.
-              Where appropriate, we include recommendations for the lake association or landowners."),
+              Where appropriate, we include recommendations for the lake association or landowners.",style="font-size:22px;"),
               h2("Navigating the Website"),
-              HTML("The app contains three main categories of visualizations: Land, Water, and Erosion.
+              p("The app contains three main categories of visualizations: Land, Water, and Erosion.
               These categories correspond to the riparian zone, the littoral zone, and the bank zone of the lake.
               Each category is displayed on a separate tab within the website. Click through the tabs at the top of the page
-              to view the graphs for each category."),
+              to view the graphs for each category.",style="font-size:22px;"),
               div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600))
               ),
        tabPanel("Land",
                 h3("The Riparian Zone at a Glance"),
-                HTML("Let's start by taking a look at what types of land cover are present in the riparian zone of Big Arbor."),
+                p("Let's start by taking a look at what types of land cover are present in the riparian zone of Big Arbor Vitae."
+                     ,style="font-size:22px;"),
                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                 column(7, plotlyOutput("land_cover_heatmap")), # need to use plotlyOutput instead of plotOutput
-                column(5, "This heatmap shows the percentage of each type of land cover for each parcel.
+                column(5, p("This heatmap shows the percentage of each type of land cover for each parcel.
                          Hovering over a square on the heatmap will display the parcel id and percent coverage for the land cover type.
-                          There doesn't seem to be much shrub and herbaceous covering on the majority of parcels on this lake.
+                          There appears to be a substantial amount of shrub and herbaceous covering on Big Arbor Vitae, and not much manicured lawn.
                           Shrubs are small-ish woody plants and herbaceous plants are things like grasses - both of these types of 
                           land cover are beneficial for controlling erosion, and native plantings are an excellent habitat for
-                          animals living near the lakeshore.")),
+                          animals living near the lakeshore. Manicured lawn has the opposite effect - it can contribute to erosion and runoff
+                          concerns, and doesn't provide any habitat benefits. It is great to see so much beneficial land cover present on this lake!"
+                            ,style="font-size:18px;"))),
                h3("Breaking it Down"),
-               HTML(""),
-               fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                column(7, plotOutput("land_development_sh")),
-                column(5, "Here, we can compare the percentage of shrub/herbaceous coverage on parcels that are developed and non developed.
-                          We can see that there is a high percentage of cover on non developed land, but also a good amount on developed land.")),
+               p("We split the parcels on this lake into two categories, developed and undeveloped.
+                    Developed parcels are primarily located on the south end of the lake where there is a high concentration of built structures, 
+                    and undeveloped parcels are primarily located on the north end of the lake, which appears to be largely untouched. We thought
+                    that there might be some interesting differences in land cover type based on whether a parcel was developed or not.",
+                 style="font-size:22px;"),
                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                  column(7, plotOutput("avg_sh_lawn_development")),
-                 column(5, "This is the mean shrub/herbaceous coverage percent per parcel, split by development status."))
+                 column(5, p("This graph shows the average percent cover of both shrub/herbaceous covering and manicured lawn. 
+                          This graph shows that both developed and undeveloped parcels tend to have a high percent of
+                          shrub and herbaceous covering. It seems like landowners are doing a relatively good job of maintaining
+                          beneficial land cover on their properties, even in more highly developed areas.",style="font-size:18px;")))
         ),
         tabPanel("Water",
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
