@@ -8,51 +8,16 @@ library(gridExtra)
 
 
 # Additional processing ---------------------------------------------------
-# define aquatic vegetation
-aquatic_veg <-
-  select(arbor_parcel,
-         c(
-           PARCELID,
-           EMERGENT_VEG_PRES,
-           FLOATING_VEG_PRES,
-           FLOAT_EMERG_PRES
-         ))
-
-# define aquatic structures
-aquatic_structures <-
-  select(
-    arbor_parcel,
-    c(
-      PARCELID,
-      PIERS_CNT,
-      BOAT_LIFT_CNT,
-      SWIM_RAFT_CNT,
-      BOATHOUSE_CNT,
-      MARINAS_CNT,
-      STRUCTURE_OTHER_CNT
-    )
-  )
-
-# add column to overall dataset for total number of structures in the water
-arbor_parcel <-
-  arbor_parcel %>% mutate(STRUCTURES_TOTAL = rowSums(aquatic_structures[, -(1)]))
-
-
-# create new column for whether any aquatic veg is present (floating or emergent)
-arbor_parcel <- arbor_parcel %>% mutate(FLOAT_OR_EMERG_PRES = case_when(EMERGENT_VEG_PRES==TRUE | FLOATING_VEG_PRES==TRUE ~ TRUE,
-                                                                        EMERGENT_VEG_PRES==FALSE & FLOATING_VEG_PRES==FALSE ~ FALSE))
-
-
 
 # Structures vs Vegetation Presence Plot ----------------------------------
 # roup number of structures into low/med/high and have 3 bar plots
 # low = 0-1; med=2-5, high=6+
-arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
+arbor_parcel %>% ggplot(aes(x=)) +
   geom_histogram(binwidth=2)
 arbor_parcel <- arbor_parcel %>% mutate(STRUCTURES_CLASS =
-                                          case_when(STRUCTURES_TOTAL <= 1 ~ "Low", 
-                                                    STRUCTURES_TOTAL > 1 & STRUCTURES_TOTAL <= 5 ~ "Medium",
-                                                    STRUCTURES_TOTAL > 5 ~ "High")
+                                          case_when(STRUCTURES_TOTAL_WATER <= 1 ~ "Low", 
+                                                    STRUCTURES_TOTAL_WATER > 1 & STRUCTURES_TOTAL_WATER <= 5 ~ "Medium",
+                                                    STRUCTURES_TOTAL_WATER > 5 ~ "High")
 )
 blues <- brewer.pal(n=9,name="Blues")
 blues2 <- blues[c(7,3)]
@@ -81,7 +46,7 @@ for (color in blues){
 blues20[c(19,20)] <- blues[c(9,9)]
 
   
-arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
+arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL_WATER)) +
   geom_histogram(binwidth=1,fill=blues20, color=blues20[20]) +
   labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
   theme_minimal() +
@@ -89,9 +54,9 @@ arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL)) +
 
 # lollipop plot of the same data as above
 arbor_parcel %>% 
-  count(STRUCTURES_TOTAL) %>% 
-  ggplot(aes(x=STRUCTURES_TOTAL, y=n)) +
-  geom_segment(aes(x=STRUCTURES_TOTAL,xend=STRUCTURES_TOTAL,y=0,yend=n),color=blues[9]) +
+  count(STRUCTURES_TOTAL_WATER) %>% 
+  ggplot(aes(x=STRUCTURES_TOTAL_WATER, y=n)) +
+  geom_segment(aes(x=STRUCTURES_TOTAL_WATER,xend=STRUCTURES_TOTAL_WATER,y=0,yend=n),color=blues[9]) +
   geom_point(size=5, color=blues20[20],fill=c(blues,blues[9], blues[9]) ,alpha=0.7,shape=21,stroke=1) +
   labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
   theme_minimal() +

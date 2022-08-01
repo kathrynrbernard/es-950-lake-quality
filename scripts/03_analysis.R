@@ -38,14 +38,51 @@ nondeveloped_ids <-
 arbor_parcel$DEVELOPED <-
   !arbor_parcel$PARCELID %in% nondeveloped_ids
 
-arbor_parcel %>%
-  group_by(DEVELOPED) %>%
-  summarize(
-    mean_canopy = mean(CANOPY_PCT),
-    mean_erosion = mean(GREAT_ERO_LEN),
-    mean_float = mean(FLOATING_VEG_PRES),
-    mean_EMERG = mean(EMERGENT_VEG_PRES)
+
+# Land Processing ----------------------------------------------------------
+# define land structures
+land_structures <- select(arbor_parcel,c(BUILDINGS_CNT, BOAT_SHORE_CNT, FIRE_PIT_CNT, OTHER_STRUCTURE_CNT))
+
+# add column to dataset for total number of land structures
+arbor_parcel <-
+  arbor_parcel %>% mutate(STRUCTURES_TOTAL_LAND = rowSums(land_structures[,]))
+
+# Water Processing --------------------------------------------------------
+# define aquatic vegetation
+aquatic_veg <-
+  select(arbor_parcel,
+         c(
+           PARCELID,
+           EMERGENT_VEG_PRES,
+           FLOATING_VEG_PRES,
+           FLOAT_EMERG_PRES
+         ))
+
+# define aquatic structures
+aquatic_structures <-
+  select(
+    arbor_parcel,
+    c(
+      PARCELID,
+      PIERS_CNT,
+      BOAT_LIFT_CNT,
+      SWIM_RAFT_CNT,
+      BOATHOUSE_CNT,
+      MARINAS_CNT,
+      STRUCTURE_OTHER_CNT
+    )
   )
+
+# add column to overall dataset for total number of structures in the water
+arbor_parcel <-
+  arbor_parcel %>% mutate(STRUCTURES_TOTAL_WATER = rowSums(aquatic_structures[, -(1)]))
+
+
+# create new column for whether any aquatic veg is present (floating or emergent)
+arbor_parcel <- arbor_parcel %>% mutate(FLOAT_OR_EMERG_PRES = case_when(EMERGENT_VEG_PRES==TRUE | FLOATING_VEG_PRES==TRUE ~ TRUE,
+                                                                        EMERGENT_VEG_PRES==FALSE & FLOATING_VEG_PRES==FALSE ~ FALSE))
+
+
 
 
 
@@ -71,3 +108,4 @@ parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2649",]
 
 # create a small dataframe with just parcels of interest
 parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
+
