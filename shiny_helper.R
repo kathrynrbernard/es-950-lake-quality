@@ -36,11 +36,72 @@ nondeveloped_ids <-
 arbor_parcel$DEVELOPED <-
   !arbor_parcel$PARCELID %in% nondeveloped_ids
 
+# add column for total structures on land
+land_structures <- select(arbor_parcel,c(BUILDINGS_CNT, BOAT_SHORE_CNT, FIRE_PIT_CNT, OTHER_STRUCTURE_CNT))
+arbor_parcel <-
+  arbor_parcel %>% mutate(STRUCTURES_TOTAL_LAND = rowSums(land_structures[,]))
+
+# add column for total structures in water
+aquatic_veg <-
+  select(arbor_parcel,
+         c(
+           PARCELID,
+           EMERGENT_VEG_PRES,
+           FLOATING_VEG_PRES,
+           FLOAT_EMERG_PRES
+         ))
+
+# define aquatic structures
+aquatic_structures <-
+  select(
+    arbor_parcel,
+    c(
+      PARCELID,
+      PIERS_CNT,
+      BOAT_LIFT_CNT,
+      SWIM_RAFT_CNT,
+      BOATHOUSE_CNT,
+      MARINAS_CNT,
+      STRUCTURE_OTHER_CNT
+    )
+  )
+
+arbor_parcel <-
+  arbor_parcel %>% mutate(STRUCTURES_TOTAL_WATER = rowSums(aquatic_structures[, -(1)]))
+
+# group number of structures in water
+arbor_parcel <- arbor_parcel %>% mutate(
+  STRUCTURES_CLASS =
+    case_when(
+      STRUCTURES_TOTAL_WATER <= 1 ~ "Low",
+      STRUCTURES_TOTAL_WATER > 1 &
+        STRUCTURES_TOTAL_WATER <= 5 ~ "Medium",
+      STRUCTURES_TOTAL_WATER > 5 ~ "High"
+    )
+)
+
+# combine floating and emergent veg presence
+arbor_parcel <-
+  arbor_parcel %>% mutate(
+    FLOAT_OR_EMERG_PRES = case_when(
+      EMERGENT_VEG_PRES == TRUE | FLOATING_VEG_PRES == TRUE ~ TRUE,
+      EMERGENT_VEG_PRES ==
+        FALSE & FLOATING_VEG_PRES == FALSE ~ FALSE
+    )
+  )
+
+
 # Parcel Drilldown --------------------------------------------------------
 parcel_one <- arbor_parcel[arbor_parcel$PARCELID=="2-2686-16",]
 parcel_two <- arbor_parcel[arbor_parcel$PARCELID=="2-2562-02",]
 parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2649",]
 parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
+
+# land drilldown
+parcel_veg_struc <- select(parcel_dd,c(PARCELID,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,AG_PCT,OTHER_PCT,
+                                       STRUCTURES_TOTAL_LAND))
+parcel_pivot <- parcel_veg_struc %>% pivot_longer(!c(PARCELID,STRUCTURES_TOTAL_LAND), names_to="Vegetation", values_to="Pct")
+
 
 # Colors ------------------------------------------------------------------
 # Green (land)
@@ -53,6 +114,24 @@ for (color in greens){
   i <- i + 2
 }
 greens4 <- greens[c(5,7,9,9)] # undeveloped parcels
+
+greens15 <- greens
+i <- 1
+for(i in 1:nrow(parcel_pivot)){
+  if(parcel_pivot[i,"Pct"] == 0){
+    greens15[i] <- greens[1]
+  }
+  else if(parcel_pivot[i,"Pct"] < 10){
+    greens15[i] <- greens[3]
+  }
+  else if(parcel_pivot[i,"Pct"] >= 10 & parcel_pivot[i,"Pct"] < 70){
+    greens15[i] <- greens[6]
+  }
+  else if(parcel_pivot[i,"Pct"] >= 70){
+    greens15[i] <- greens[8]
+  }
+  i <- i + 1
+}
 
 # Blue (water)
 blues <- brewer.pal(n=9,name="Blues")
@@ -77,6 +156,11 @@ land_cover <- select(arbor_parcel,
                      c(PARCELID, SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,OTHER_PCT))
 land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_to="PCT_COVERAGE")
 
+parcel_veg_struc <- select(parcel_dd,c(PARCELID,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,AG_PCT,OTHER_PCT,
+                                       STRUCTURES_TOTAL_LAND))
+parcel_pivot <- parcel_veg_struc %>% pivot_longer(!c(PARCELID,STRUCTURES_TOTAL_LAND), names_to="Vegetation", values_to="Pct")
+
+
 # Water
 aquatic_structures <-
   select(
@@ -89,25 +173,6 @@ aquatic_structures <-
       BOATHOUSE_CNT,
       MARINAS_CNT,
       STRUCTURE_OTHER_CNT
-    )
-  )
-arbor_parcel <-
-  arbor_parcel %>% mutate(STRUCTURES_TOTAL = rowSums(aquatic_structures[, -(1)]))
-arbor_parcel <- arbor_parcel %>% mutate(
-  STRUCTURES_CLASS =
-    case_when(
-      STRUCTURES_TOTAL <= 1 ~ "Low",
-      STRUCTURES_TOTAL > 1 &
-        STRUCTURES_TOTAL <= 5 ~ "Medium",
-      STRUCTURES_TOTAL > 5 ~ "High"
-    )
-)
-arbor_parcel <-
-  arbor_parcel %>% mutate(
-    FLOAT_OR_EMERG_PRES = case_when(
-      EMERGENT_VEG_PRES == TRUE | FLOATING_VEG_PRES == TRUE ~ TRUE,
-      EMERGENT_VEG_PRES ==
-        FALSE & FLOATING_VEG_PRES == FALSE ~ FALSE
     )
   )
 
