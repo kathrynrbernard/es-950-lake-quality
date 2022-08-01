@@ -55,7 +55,7 @@ ui <- fluidPage(
                           There's still some room for improvement, though, Landowners with a lot of manicured lawn could consider
                           re-wilding parts of their property to reintroduce native plants and more land cover that helps combat erosion."
                           ,style="font-size:16px;"))),
-               h3("Parcels",style="text-decoration: underline;"),
+               h3("Parcel Check-in",style="text-decoration: underline;"),
                p("Let's take a look at some information for our three parcels.",style="font-size:18px;"),
                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                  column(7, plotOutput("land_cover_parcels")),
@@ -76,24 +76,24 @@ ui <- fluidPage(
                  p("<overview text>"
                    ,style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                  column(7, plotOutput("aquatic_veg_structures")),
+                  column(7, plotOutput("aquatic_parcel_structures")),
                   column(5, h5("Summary"),
-                            p("Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
-                             We can see that there is very little vegetation present on Big Arbor Lake.",style="font-size:16px;"),
+                         p("This graph shows the distribution of number of structures in the littoral zone across the entire lake.
+                            Most parcels on the lake have 1-3 structures in the water on their property. A few parcels have 4-6 aquatic structures,
+                            and there are a handful of parcels with many structures.",style="font-size:16px;"),
                             h5("Recommendations"),
                             p(style="font-size:16px;"))),
                   h3("Breaking it down",style="text-decoration: underline;"),
                   p("<text>.",
                     style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                  column(7,plotOutput("aquatic_parcel_structures")),
+                  column(7,plotOutput("aquatic_veg_structures")),
                   column(5,h5("Summary"),
-                            p("This graph shows the distribution of number of structures in the littoral zone across the entire lake.
-                            Most parcels on the lake have 1-3 structures in the water on their property. A few parcels have 4-6 aquatic structures,
-                            and there are a handful of parcels with many structures.",style="font-size:16px;"),
+                            p("Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
+                             We can see that there is very little vegetation present on Big Arbor Lake.",style="font-size:16px;"),
                             h5("Recommendations"),
                             p(style="font-size:16px;"))),
-                  h3("Parcels",style="text-decoration: underline;"),
+                  h3("Parcel Check-in",style="text-decoration: underline;"),
                   p("Let's take a look at some information for our three parcels.",style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7,plotOutput("aquatic_parcel_struc_dd")),

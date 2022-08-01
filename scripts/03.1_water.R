@@ -4,11 +4,6 @@
 library(tidyverse)
 library(gridExtra)
 
-
-
-
-# Additional processing ---------------------------------------------------
-
 # Structures vs Vegetation Presence Plot ----------------------------------
 # group number of structures into low/med/high and have 3 bar plots
 # low = 0-1; med=2-5, high=6+
@@ -28,7 +23,7 @@ arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=as.factor(FLOAT_OR_EMERG_PR
 
 
 
-# Number of Structures per Parcel Plot  --------------------------------------------------
+# Structures Distribution  --------------------------------------------------
 # color manipulation to make it the right length
 blues20 <- blues
 i <- 1
@@ -55,7 +50,42 @@ arbor_parcel %>%
   labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,size=15))
-  
+
+# lollipop plot with hover
+# on hover: show count of each kind of structure
+# or show parcel id and how many of each structure they have
+
+zero_label <- c()
+for(x in arbor_parcel[arbor_parcel$STRUCTURES_TOTAL_WATER==0,"PARCELID"]){
+  zero_label <- c(paste(zero_label, "\nParcel ID: " ,x))
+}
+zero_label <- trimws(zero_label) # get rid of leading newline
+
+non_zero_label <- c()
+for(x in arbor_parcel[arbor_parcel$STRUCTURES_TOTAL_WATER!=0,"PARCELID"]){
+  print(arbor_parcel[arbor_parcel$PARCELID==x,c("PIERS_CNT",
+                                                "BOAT_LIFT_CNT",
+                                                "SWIM_RAFT_CNT",
+                                                "BOATHOUSE_CNT",
+                                                "MARINAS_CNT",
+                                                "STRUCTURE_OTHER_CNT")])
+}
+
+#PIERS_CNT BOAT_LIFT_CNT SWIM_RAFT_CNT BOATHOUSE_CNT MARINAS_CNT STRUCTURE_OTHER_CNT
+#2         1             0             0             0           0                   1
+
+
+ p <- arbor_parcel %>% 
+  count(STRUCTURES_TOTAL_WATER) %>% 
+  mutate(hovertemplate=ifelse(STRUCTURES_TOTAL_WATER!=0, "not zero", 
+                              zero_label)) %>% 
+  ggplot(aes(x=STRUCTURES_TOTAL_WATER, y=n, text=hovertemplate)) +
+  geom_segment(aes(x=STRUCTURES_TOTAL_WATER,xend=STRUCTURES_TOTAL_WATER,y=0,yend=n),color=blues[9]) +
+  geom_point(size=5, color=blues20[20],fill=c(blues,blues[9], blues[9]) ,alpha=0.7,shape=21,stroke=.5) +
+  labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+ ggplotly(p, tooltip="text")
 
 
 # Parcel Drilldown - Structures Plot --------------------------------------

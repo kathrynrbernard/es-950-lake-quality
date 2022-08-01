@@ -109,7 +109,8 @@ land_cover <- pivot_longer(land_cover,cols=!PARCELID,names_to="VEG_TYPE",values_
 
 
 # ggplot converted to plotly - final plot
-p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE,"%"))) +
+p <- land_cover %>% 
+  ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE,"%"))) +
   geom_tile() +
   scale_fill_distiller(palette="Greens",direction=1, name="Percent Coverage") +
   labs(title="Land Cover Percentages per Parcel", x="Vegetation Type", y="Parcel") +
