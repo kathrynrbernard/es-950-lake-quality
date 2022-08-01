@@ -52,19 +52,18 @@ erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
 
 
 # Length of Riprap Across Parcels Plot ------------------------------------
-erosion_control %>%
-  ggplot(aes(x=RIPRAP_LEN)) +
-  geom_density(fill="#741b08", color="#de4524") +
+erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
+  geom_histogram(binwidth = 5)
 ggtitle("Amount of Riprap in Parcels") +
-  labs(x = "Rip Rap Length", y = "Density") + 
-  theme_ipsum()
+  labs(x = "Rip Rap Length", y = "Density") 
 
 # additional colors
 tans <- brewer.pal(n=9,name="BrBG")
 erosion_control %>%
-  ggplot(aes(x=RIPRAP_LEN)) +
-  geom_density(fill=tans[3], color=tans[1]) +
+  erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
+  geom_histogram(binwidth = 5)+
   ggtitle("Length of Riprap across Parcels") +
   labs(x = "Riprap Length (Feet)", y = "Density") + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,size=15))
+

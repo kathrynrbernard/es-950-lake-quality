@@ -15,7 +15,14 @@ ui <- fluidPage(
               These categories correspond to the riparian zone, the littoral zone, and the bank zone of the lake.
               Each category is displayed on a separate tab within the website. Click through the tabs at the top of the page
               to view the graphs for each category."),
-              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600))
+              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600)),
+              h3("Deciding Developed vs Undeveloped Parcels"),
+              HTML("To get a better sense of Big Arbor Lake, we split the parcels into two categories: Developed and Undeveloped. 
+                   In order to decide what parcels fell into these categories, we used a satellite image from the WDNR Lakes and AIS Mapping tool. 
+                   We looked for structure presence and canopy coverage in each parcel to see if a parcel was fully developed.
+                   Parcels that are highlighted in yellow are the parcels that we decided are 'Undeveloped.' 
+                   This encompasses the northern portion of the lake."),
+              div(style="padding-top: 10px;",img(src='Undeveloped_Map.png', align = "center", width=600))
               ),
        tabPanel("Land",
                 h3("The Riparian Zone at a Glance"),
