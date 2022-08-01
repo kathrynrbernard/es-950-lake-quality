@@ -37,10 +37,35 @@ arbor_parcel$DEVELOPED <-
   !arbor_parcel$PARCELID %in% nondeveloped_ids
 
 # add column for total structures on land
+land_structures <- select(arbor_parcel,c(BUILDINGS_CNT, BOAT_SHORE_CNT, FIRE_PIT_CNT, OTHER_STRUCTURE_CNT))
 arbor_parcel <-
   arbor_parcel %>% mutate(STRUCTURES_TOTAL_LAND = rowSums(land_structures[,]))
 
 # add column for total structures in water
+aquatic_veg <-
+  select(arbor_parcel,
+         c(
+           PARCELID,
+           EMERGENT_VEG_PRES,
+           FLOATING_VEG_PRES,
+           FLOAT_EMERG_PRES
+         ))
+
+# define aquatic structures
+aquatic_structures <-
+  select(
+    arbor_parcel,
+    c(
+      PARCELID,
+      PIERS_CNT,
+      BOAT_LIFT_CNT,
+      SWIM_RAFT_CNT,
+      BOATHOUSE_CNT,
+      MARINAS_CNT,
+      STRUCTURE_OTHER_CNT
+    )
+  )
+
 arbor_parcel <-
   arbor_parcel %>% mutate(STRUCTURES_TOTAL_WATER = rowSums(aquatic_structures[, -(1)]))
 
@@ -71,6 +96,12 @@ parcel_one <- arbor_parcel[arbor_parcel$PARCELID=="2-2686-16",]
 parcel_two <- arbor_parcel[arbor_parcel$PARCELID=="2-2562-02",]
 parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2649",]
 parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
+
+# land drilldown
+parcel_veg_struc <- select(parcel_dd,c(PARCELID,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,AG_PCT,OTHER_PCT,
+                                       STRUCTURES_TOTAL_LAND))
+parcel_pivot <- parcel_veg_struc %>% pivot_longer(!c(PARCELID,STRUCTURES_TOTAL_LAND), names_to="Vegetation", values_to="Pct")
+
 
 # Colors ------------------------------------------------------------------
 # Green (land)

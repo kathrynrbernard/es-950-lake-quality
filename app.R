@@ -72,19 +72,36 @@ ui <- fluidPage(
                
         ),
         tabPanel("Water",
+                 h3("The Littoral Zone at a glance",style="text-decoration: underline;"),
+                 p("<overview text>"
+                   ,style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7, plotOutput("aquatic_veg_structures")),
-                  column(5, "Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
-                             We can see that there is very little vegetation present on Big Arbor Lake. Is this a product of removal, or an indication of lake quality issues?")),
+                  column(5, h5("Summary"),
+                            p("Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
+                             We can see that there is very little vegetation present on Big Arbor Lake.",style="font-size:16px;"),
+                            h5("Recommendations"),
+                            p(style="font-size:16px;"))),
+                  h3("Breaking it down",style="text-decoration: underline;"),
+                  p("<text>.",
+                    style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7,plotOutput("aquatic_parcel_structures")),
-                  column(5,"This graph shows the distribution of number of structures in the littoral zone across the entire lake.
+                  column(5,h5("Summary"),
+                            p("This graph shows the distribution of number of structures in the littoral zone across the entire lake.
                             Most parcels on the lake have 1-3 structures in the water on their property. A few parcels have 4-6 aquatic structures,
-                            and there are a handful of parcels with many structures.")),
+                            and there are a handful of parcels with many structures.",style="font-size:16px;"),
+                            h5("Recommendations"),
+                            p(style="font-size:16px;"))),
+                  h3("Parcels",style="text-decoration: underline;"),
+                  p("Let's take a look at some information for our three parcels.",style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7,plotOutput("aquatic_parcel_struc_dd")),
-                  column(5,"Let's take a deeper dive into three parcels of interest. One of these parcels has a lot of structures, one has a handful,
-                            and one doesn't have any structures in the littoral zone at all.")),
+                  column(5, h5("Summary"),
+                          p("Let's take a deeper dive into three parcels of interest. One of these parcels has a lot of structures, one has a handful,
+                            and one doesn't have any structures in the littoral zone at all.",style="font-size:16px;"),
+                         h5("Recommendations"),
+                         p(style="font-size:16px;")))
        ),
        tabPanel("Erosion", 
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
@@ -200,9 +217,9 @@ server <- function(input, output) {
     
     # plot total number of structures
     arbor_parcel %>% 
-      count(STRUCTURES_TOTAL) %>% 
-      ggplot(aes(x=STRUCTURES_TOTAL, y=n)) +
-      geom_segment(aes(x=STRUCTURES_TOTAL,xend=STRUCTURES_TOTAL,y=0,yend=n),color=blues[9]) +
+      count(STRUCTURES_TOTAL_WATER) %>% 
+      ggplot(aes(x=STRUCTURES_TOTAL_WATER, y=n)) +
+      geom_segment(aes(x=STRUCTURES_TOTAL_WATER,xend=STRUCTURES_TOTAL_WATER,y=0,yend=n),color=blues[9]) +
       geom_point(size=5, color=blues20[20],fill=c(blues,blues[9], blues[9]) ,alpha=0.7,shape=21,stroke=1) +
       labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
       theme_minimal() +

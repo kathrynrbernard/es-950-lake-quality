@@ -47,6 +47,11 @@ land_structures <- select(arbor_parcel,c(BUILDINGS_CNT, BOAT_SHORE_CNT, FIRE_PIT
 arbor_parcel <-
   arbor_parcel %>% mutate(STRUCTURES_TOTAL_LAND = rowSums(land_structures[,]))
 
+parcel_veg_struc <- select(parcel_dd,c(PARCELID,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MANI_LAWN_PCT,AG_PCT,OTHER_PCT,
+                                       STRUCTURES_TOTAL_LAND))
+parcel_pivot <- parcel_veg_struc %>% pivot_longer(!c(PARCELID,STRUCTURES_TOTAL_LAND), names_to="Vegetation", values_to="Pct")
+
+
 # Water Processing --------------------------------------------------------
 # define aquatic vegetation
 aquatic_veg <-
@@ -77,6 +82,12 @@ aquatic_structures <-
 arbor_parcel <-
   arbor_parcel %>% mutate(STRUCTURES_TOTAL_WATER = rowSums(aquatic_structures[, -(1)]))
 
+# group structures
+arbor_parcel <- arbor_parcel %>% mutate(STRUCTURES_CLASS =
+                                          case_when(STRUCTURES_TOTAL_WATER <= 1 ~ "Low", 
+                                                    STRUCTURES_TOTAL_WATER > 1 & STRUCTURES_TOTAL_WATER <= 5 ~ "Medium",
+                                                    STRUCTURES_TOTAL_WATER > 5 ~ "High")
+)
 
 # create new column for whether any aquatic veg is present (floating or emergent)
 arbor_parcel <- arbor_parcel %>% mutate(FLOAT_OR_EMERG_PRES = case_when(EMERGENT_VEG_PRES==TRUE | FLOATING_VEG_PRES==TRUE ~ TRUE,

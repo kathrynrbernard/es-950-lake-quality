@@ -10,15 +10,9 @@ library(gridExtra)
 # Additional processing ---------------------------------------------------
 
 # Structures vs Vegetation Presence Plot ----------------------------------
-# roup number of structures into low/med/high and have 3 bar plots
+# group number of structures into low/med/high and have 3 bar plots
 # low = 0-1; med=2-5, high=6+
-arbor_parcel %>% ggplot(aes(x=)) +
-  geom_histogram(binwidth=2)
-arbor_parcel <- arbor_parcel %>% mutate(STRUCTURES_CLASS =
-                                          case_when(STRUCTURES_TOTAL_WATER <= 1 ~ "Low", 
-                                                    STRUCTURES_TOTAL_WATER > 1 & STRUCTURES_TOTAL_WATER <= 5 ~ "Medium",
-                                                    STRUCTURES_TOTAL_WATER > 5 ~ "High")
-)
+
 blues <- brewer.pal(n=9,name="Blues")
 blues2 <- blues[c(7,3)]
 names(blues2) <- levels(as.factor(arbor_parcel$FLOAT_OR_EMERG_PRES))
