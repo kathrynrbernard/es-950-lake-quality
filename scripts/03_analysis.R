@@ -118,5 +118,9 @@ parcel_two <- arbor_parcel[arbor_parcel$PARCELID=="2-2562-02",]
 parcel_three <- arbor_parcel[arbor_parcel$PARCELID=="2-2649",]
 
 # create a small dataframe with just parcels of interest
+<<<<<<< HEAD
+parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
+=======
 parcel_dd <- arbor_parcel %>% filter(PARCELID==parcel_one$PARCELID | PARCELID==parcel_two$PARCELID | PARCELID==parcel_three$PARCELID)
 
+>>>>>>> 08c05d1715b13d973fb4e24c63ad8dd83a4497ab

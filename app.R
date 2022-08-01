@@ -14,11 +14,16 @@ ui <- fluidPage(
               p("The app contains three main categories of visualizations: Land, Water, and Erosion.
               These categories correspond to the riparian zone, the littoral zone, and the bank zone of the lake.
               Each category is displayed on a separate tab within the website. Click through the tabs at the top of the page
-              to view the graphs for each category.",style="font-size:20px;"),
-              p("Each tab has a few visualizations. Some of those visualizations are related to the lake as a whole, and some offer
-                in-depth look at a few specific parcels on the lake. We chose three parcels to examine more closely. You can follow the same three parcels
-                across the tabs to see how they compare in each shorefront zone.", style="font-size:20px;"),
-              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600))
+              to view the graphs for each category."),
+              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600)),
+              h3("Deciding Developed vs Undeveloped Parcels"),
+              HTML("To get a better sense of Big Arbor Lake, we split the parcels into two categories: Developed and Undeveloped. 
+                   In order to decide what parcels fell into these categories, we used a satellite image from the WDNR Lakes and AIS Mapping tool. 
+                   We looked for structure presence and canopy coverage in each parcel to see if a parcel was fully developed.
+                   Parcels that are highlighted in yellow are the parcels that we decided are 'Undeveloped.' 
+                   This encompasses the northern portion of the lake."),
+              div(style="padding-top: 10px;",img(src='Undeveloped_Map.png', align = "center", width=600))
+
               ),
        tabPanel("Land",
                 h3("The Riparian Zone at a glance",style="text-decoration: underline;"),
