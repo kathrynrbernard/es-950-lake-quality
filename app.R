@@ -124,10 +124,17 @@ ui <- fluidPage(
        tabPanel("Erosion", 
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7, plotOutput("erosion_plot")),
-                   column(5, "This density graph shows the length of riprap areas present on the lake.")),
-       ),
-    )
-  )
+                   column(5, h5("Summary"),
+                          p("This plot shows the the count of parcels that have riprap of a certain amount of riprap. 
+                          We can see that a large amount of parcels do not have any riprap, 
+                            but there are a few with a good amount of riprap for erosion protection.",style="font-size:16px;")),
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                         column(7, plotOutput("erosion_factors")),
+                         column(5, "Here we want to compare the amount of riprap to other erosion control features.
+                                There are some vertical walls in place to prevent erosion, as well as some other control features.")))
+       )
+    ),
+)
 
 
 server <- function(input, output) {
@@ -261,13 +268,33 @@ server <- function(input, output) {
   
   output$erosion_plot <- renderPlot({
     
-    erosion_control %>%
-      ggplot(aes(x=RIPRAP_LEN)) +
-      geom_density(fill=tans[3], color=tans[1]) +
+    # Plot showing Riprap length
+    erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
+      geom_histogram(binwidth = 5, fill = 'chocolate4')+
       ggtitle("Length of Riprap across Parcels") +
-      labs(x = "Riprap Length (Feet)", y = "Density") + 
+      labs(x = "Riprap Length (Feet)", y = "Count") + 
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15))
+  })
+  
+  output$erosion_factors <- renderPlot({
+    
+    #Plot showing riprap compared to other erosion prevention
+    e1 <- erosion_control %>% ggplot(aes(x=RIPRAP_LEN)) + 
+      geom_histogram(binwidth = 5, fill = 'chocolate4') +
+      ggtitle("Riprap Length")+
+      labs(x = "Riprap Length", y = "Count")
+    e2 <- erosion_control %>% ggplot(aes(x=VERTICAL_WALL_LEN)) +
+      geom_histogram(binwidth = 5, fill = 'orangered')+
+      ggtitle("Vertical Wall")+
+      labs(x = "Vertical Wall")+
+      theme(axis.text.y=element_blank())
+    e3 <- erosion_control %>% ggplot(aes(x=EROSION_CNTRL_LEN)) +
+      geom_histogram(binwidth = 5, fill = 'red1') +
+      ggtitle("Erosion Control") + 
+      labs(x = "Erosion Control")
+    grid.arrange(e1,e2,e3, nrow=1)
+    
   })
 }
 
