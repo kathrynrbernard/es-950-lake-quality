@@ -5,25 +5,25 @@ ui <- fluidPage(
   titlePanel("Big Arbor Vitae Lake Quality"), # Application title
   tabsetPanel(
      tabPanel("Home",
-              h2("About this page",style="text-decoration: underline;"),
+              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "right", width=400)),
+              h2("Our Data",style="text-decoration: underline;"),
               p("This website displays information about Big Arbor Vitae Lake. All the data visualized here was collected by the 
-              Wisconsin Department of Natural Resources as part of their shoreline monitoring program.
-              The graphs show metrics related to overall lake quality as well as data from selected parcels.
-              Where appropriate, we include recommendations for the lake association or landowners.",style="font-size:20px;"),
-              h2("Navigating the website",style="text-decoration: underline;"),
+              Wisconsin Department of Natural Resources as part of their shoreline monitoring program.",style="font-size:18px;"),
+              h2("The Website",style="text-decoration: underline;"),
               p("The app contains three main categories of visualizations: Land, Water, and Erosion.
               These categories correspond to the riparian zone, the littoral zone, and the bank zone of the lake.
               Each category is displayed on a separate tab within the website. Click through the tabs at the top of the page
-              to view the graphs for each category."),
-              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "center", width=600)),
-              h3("Deciding Developed vs Undeveloped Parcels"),
-              HTML("To get a better sense of Big Arbor Lake, we split the parcels into two categories: Developed and Undeveloped. 
-                   In order to decide what parcels fell into these categories, we used a satellite image from the WDNR Lakes and AIS Mapping tool. 
-                   We looked for structure presence and canopy coverage in each parcel to see if a parcel was fully developed.
-                   Parcels that are highlighted in yellow are the parcels that we decided are 'Undeveloped.' 
-                   This encompasses the northern portion of the lake."),
-              div(style="padding-top: 10px;",img(src='Undeveloped_Map.png', align = "center", width=600))
-
+              to view the graphs for each category.",style="font-size:18px;"),
+              h4("Categorizing Development Status",style="padding-top: 50px;"),
+              div(style="padding-top: 10px; padding-right: 50px",img(src='Undeveloped_Map.png', align = "left", width=400, height=400),
+              p("We wanted to investigate some differences between developed and undeveloped parcels. To create these two categories,
+              we used a satellite image from the WDNR Lakes and AIS Mapping tool and looked at several indicators of development,
+              including canopy coverage, manicured lawn presence, and the presence of built structures.
+              We also considered a parcel's location on the lake when determining development status. The northern side of the lake
+              is primarily untouched, so if a parcel on that side of the lake had one built structure but still had high canopy cover
+              and no manicured lawn, we considered that parcel to be predominantly undeveloped.
+              The parcels we categorized as undeveloped are highlighted in yellow on the map.",
+                style="padding-left: 10%; padding-right: 10%; font-size:18px; "))
               ),
        tabPanel("Land",
                 h3("The Riparian Zone at a glance",style="text-decoration: underline;"),
@@ -78,7 +78,8 @@ ui <- fluidPage(
         ),
         tabPanel("Water",
                  h3("The Littoral Zone at a glance",style="text-decoration: underline;"),
-                 p("<overview text>"
+                 p("Built structures in the littoral zone can have negative effects on aquatic vegetation and fish populations. Let's see
+                   how common it is for parcels on Big Arbor Vitae to have built structures in this zone of the lake."
                    ,style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7, plotOutput("aquatic_parcel_structures")),
@@ -87,26 +88,38 @@ ui <- fluidPage(
                             Most parcels on the lake have 1-3 structures in the water on their property. A few parcels have 4-6 aquatic structures,
                             and there are a handful of parcels with many structures.",style="font-size:16px;"),
                             h5("Recommendations"),
-                            p(style="font-size:16px;"))),
+                            p("Most parcels have no or a few built structures in this zone, which is good. A few parcels
+                              have a large number of structures. Owners of these parcels should evaluate whether all of these 
+                              structures are still necessary or if any could be removed.",style="font-size:16px;"))),
                   h3("Breaking it down",style="text-decoration: underline;"),
-                  p("<text>.",
+                  p("Research shows that built structures in the water like piers, docks, and swim rafts can have a negative effect on
+                    floating and emergent aquatic vegetation. Let's see what the distribution of vegetation in Big Arbor Vitae Lake looks like.",
                     style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7,plotOutput("aquatic_veg_structures")),
                   column(5,h5("Summary"),
-                            p("Displayed is the amount of parcels, grouped by their amounts of structures, with vegetation present.
-                             We can see that there is very little vegetation present on Big Arbor Lake.",style="font-size:16px;"),
+                            p("We split the number of built structures in the water into three categories: low (0-1),
+                              medium (2-4), and high (6+), and plotted the presence or absence of aquatic vegetation for 
+                              each of those categories. There is very little vegetation present in the lake, regardless of
+                              the number of built structures in the water.",style="font-size:16px;"),
                             h5("Recommendations"),
-                            p(style="font-size:16px;"))),
+                            p("The DNR didn't find any evidence that vegetation was being removed from this lake, which is a good
+                              sign. The lack of vegetation might be due to the chemical nature of the water, or some other factor.
+                              Landowners could try introducing some native plant species into the littoral zone. If the plants aren't
+                              able to survive on individual parcels, the lakeshore association might need to investigate other sources
+                              of fish habitat, potentially including arficial habitats.,",style="font-size:16px;"))),
                   h3("Parcel Check-in",style="text-decoration: underline;"),
                   p("Let's take a look at some information for our three parcels.",style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7,plotOutput("aquatic_parcel_struc_dd")),
                   column(5, h5("Summary"),
-                          p("Let's take a deeper dive into three parcels of interest. One of these parcels has a lot of structures, one has a handful,
-                            and one doesn't have any structures in the littoral zone at all.",style="font-size:16px;"),
+                          p("Let's take a deeper dive into our three parcels of interest. One of the parcels has a large number
+                            of built structures in the littoral zone, one has a few, and one has none.",style="font-size:16px;"),
                          h5("Recommendations"),
-                         p(style="font-size:16px;")))
+                         p("The parcel that has many piers and boat lifts
+                            is the same parcel from the Land tab that had a high percentage of manicured lawn and a high
+                           number of built structures in the riparian zone. It's important for the owners of this parcel to be
+                           conscious of the structures they're building and the impact they can have on habitat and lake health.",style="font-size:16px;")))
        ),
        tabPanel("Erosion", 
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
