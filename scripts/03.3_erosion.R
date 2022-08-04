@@ -4,7 +4,6 @@
 library(tidyverse)
 library(gridExtra)
 library(dplyr)
-library(hrbrthemes)
 library(RColorBrewer)
 
 
