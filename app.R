@@ -5,25 +5,30 @@ ui <- fluidPage(
   titlePanel("Big Arbor Vitae Lake Quality"), # Application title
   tabsetPanel(
      tabPanel("Home",
-              div(style="padding-top: 10px;",img(src='BigArborAerial.png', align = "right", width=400)),
-              h2("Our Data",style="text-decoration: underline;"),
-              p("This website displays information about Big Arbor Vitae Lake. All the data visualized here was collected by the 
+              fluidRow(style="padding-top: 10px;",
+                column(8,h2("About The Data",style="text-decoration: underline;"),
+                       p("This website displays information about Big Arbor Vitae Lake. All the data visualized here was collected by the 
               Wisconsin Department of Natural Resources as part of their shoreline monitoring program.",style="font-size:18px;"),
-              h2("The Website",style="text-decoration: underline;"),
-              p("The app contains three main categories of visualizations: Land, Water, and Erosion.
+                       h2("About The Website",style="text-decoration: underline;"),
+                       p("The app contains three main categories of visualizations: Land, Water, and Erosion.
               These categories correspond to the riparian zone, the littoral zone, and the bank zone of the lake.
               Each category is displayed on a separate tab within the website. Click through the tabs at the top of the page
-              to view the graphs for each category.",style="font-size:18px;"),
-              h4("Categorizing Development Status",style="padding-top: 50px;"),
-              div(style="padding-top: 10px; padding-right: 50px",img(src='Undeveloped_Map.png', align = "left", width=400, height=400),
-              p("We wanted to investigate some differences between developed and undeveloped parcels. To create these two categories,
+              to view the graphs for each category.",style="font-size:18px;")
+                       ),
+                column(4,img(src='BigArborAerial.png', float = "right", style="width: 100%")
+                       )),
+        
+              h4("Categorizing Development Status",style="padding-top: 10px;"),
+              fluidRow(style="padding-bottom: 10px;",
+                column(4, img(src='Undeveloped_Map.png', float = "left", style="width: 100%")),
+                column(8,p("We wanted to investigate some differences between developed and undeveloped parcels. To create these two categories,
               we used a satellite image from the WDNR Lakes and AIS Mapping tool and looked at several indicators of development,
               including canopy coverage, manicured lawn presence, and the presence of built structures.
               We also considered a parcel's location on the lake when determining development status. The northern side of the lake
               is primarily untouched, so if a parcel on that side of the lake had one built structure but still had high canopy cover
               and no manicured lawn, we considered that parcel to be predominantly undeveloped.
               The parcels we categorized as undeveloped are highlighted in yellow on the map.",
-                style="padding-left: 10%; padding-right: 10%; font-size:18px; "))
+                           style="font-size:18px; ")))
               ),
        tabPanel("Land",
                 h3("The Riparian Zone at a glance",style="text-decoration: underline;"),
