@@ -53,17 +53,36 @@ erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
 
 # Length of Riprap Across Parcels Plot ------------------------------------
 erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
-  geom_histogram(binwidth = 5)
+  geom_histogram(binwidth = 5) +
 ggtitle("Amount of Riprap in Parcels") +
-  labs(x = "Rip Rap Length", y = "Density") 
+  labs(x = "Rip Rap Length", y = "Number of Parcels")
 
 # additional colors
-tans <- brewer.pal(n=9,name="BrBG")
-erosion_control %>%
-  erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
-  geom_histogram(binwidth = 5)+
+erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
+  geom_histogram(binwidth = 5, fill = 'chocolate4')+
   ggtitle("Length of Riprap across Parcels") +
-  labs(x = "Riprap Length (Feet)", y = "Density") + 
+  labs(x = "Riprap Length (Feet)", y = "Count") + 
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,size=15))
+  
+  
+# Plotting erosion control in one block
+e1 <- erosion_control %>% ggplot(aes(x=RIPRAP_LEN)) + 
+  geom_histogram(binwidth = 5, fill = 'chocolate4') +
+  ggtitle("Riprap Length")+
+  labs(x = "Riprap Length", y = "Count")
+e2 <- erosion_control %>% ggplot(aes(x=VERTICAL_WALL_LEN)) +
+  geom_histogram(binwidth = 5, fill = 'orangered')+
+  ggtitle("Vertical Wall")+
+  labs(x = "Vertical Wall")+
+  theme(axis.text.y=element_blank())
+e3 <- erosion_control %>% ggplot(aes(x=EROSION_CNTRL_LEN)) +
+  geom_histogram(binwidth = 5, fill = 'red1') +
+  ggtitle("Erosion Control") + 
+  labs(x = "Erosion Control")
+grid.arrange(e1,e2,e3, nrow=1)
 
+# By selected parcels
+parcel_ero <- select(parcel_dd,c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES))
+parcel_ero %>% ggplot(aes(x=parcel_ero, y=Presence,fill=PARCELID)) +
+  geom_bar(stat="identity",position="dodge")
