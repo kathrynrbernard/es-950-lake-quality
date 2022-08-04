@@ -55,7 +55,7 @@ erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
 erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
   geom_histogram(binwidth = 5) +
 ggtitle("Amount of Riprap in Parcels") +
-  labs(x = "Rip Rap Length", y = "Number of Parcels")
+  labs(x = "Riprap Length", y = "Number of Parcels")
 
 # additional colors
 erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
