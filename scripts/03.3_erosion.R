@@ -133,11 +133,16 @@ draw.pairwise.venn(area1 = sum(erosion_pres$EROSION_CTRL_PRES),
                    cross.area = nrow(erosion_pres %>% filter(EROSION_CTRL_PRES==1 & EROSION_RISK_PRES==1)), 
                    category = c("Erosion Control Structures Present:\n 22 out of 89 parcels",
                                 "Erosion Risk Factors\n Documented:\n 6 out of 89 parcels"),
-                   cat.fontfamily = "sans",
+                   cat.fontface = rep("plain", 2),
+                   cat.fontfamily=rep("sans", 2),
                    cat.default.pos="text",
+                   cex=c(0,0,0),
+                   #at.cex=c(1,0.5),
                    col = "chocolate4",
                    fill = c("wheat2", "cornsilk"),
-                   alpha = 1)
+                   alpha = c(1,1))
+
+
 
 
 parcel_ero <- select(parcel_dd,c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES))

@@ -124,19 +124,46 @@ ui <- fluidPage(
                          p("The parcel that has many piers and boat lifts
                             is the same parcel from the Land tab that had a high percentage of manicured lawn and a high
                            number of built structures in the riparian zone. It's important for the owners of this parcel to be
-                           conscious of the structures they're building and the impact they can have on habitat and lake health.",style="font-size:16px;")))
+                           conscious of the structures they're building and the impact they can have on habitat and lake health.",
+                           style="font-size:16px;")))
        ),
        tabPanel("Erosion", 
+                h3("The Bank Zone at a glance",style="text-decoration: underline;"),
+                p("The Bank Zone is where the water meets the land, and is a location where landowners have a lot of potential to minimize the harms
+                  of erosion on their lakeshore. Let's take a look at what kind of erosion control structures are most common on Big Arbor
+                  Vitae Lake."
+                  ,style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                  column(7, plotOutput("erosion_plot")),
+                  column(7, plotOutput("erosion_factors")),
                    column(5, h5("Summary"),
-                          p("This plot shows the the count of parcels that have riprap of a certain amount of riprap. 
-                          We can see that a large amount of parcels do not have any riprap, 
-                            but there are a few with a good amount of riprap for erosion protection.",style="font-size:16px;"))),
+                          p(".",style="font-size:16px;"),
+                          h5("Recommendations"),
+                          p(style="font-size:16px;"))),
+                h3("Breaking it down",style="text-decoration: underline;"),
+                p("From the heatmap above, we can see that there aren't a lot of erosion control structures in place on this lake. Let's see
+                  where the erosion control structures are primarily located - are they predominantly on parcels that have documented risk
+                  factors for erosion?",
+                  style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                         column(7, plotOutput("erosion_factors")),
-                         column(5, "Here we want to compare the amount of riprap to other erosion control features.
-                                There are some vertical walls in place to prevent erosion, as well as some other control features."))
+                         column(7, img(src='erosion_venn.png', float = "right", style="width: 80%")),
+                         column(5, h5("Summary"),
+                                p("This Venn diagram looks a little unconventional. The two groups don't overlap at all! None of the parcels
+                                  with documented risk factors for erosion have structures in place that can help mitigate the effects of
+                                  erosion.",style="font-size:16px;"),
+                                h5("Recommendations"),
+                                p("Landowners on parcels with identified risk factors for erosion should take steps to mitigate those risks.
+                                  Some of those steps could include putting controlling structures, like riprap or seawall, in place.
+                                  As we discussed above, native plantings on the shoreline are also a great way to help mitigate the effects
+                                  of erosion.",style="font-size:16px;"))),
+                h3("Checking in on parcels of interest",style="text-decoration: underline;"),
+                p("Filler text",
+                  style="font-size:18px;")
+                #fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                         #column(7,plotOutput("erosion_venn")),
+                         #column(5, h5("Summary"),
+                               # p(style="font-size:16px;"),
+                                #h5("Recommendations"),
+                                #p(style="font-size:16px;")))
        )
     ),
 )
@@ -275,6 +302,36 @@ server <- function(input, output) {
     
   })
   
+  output$erosion_venn <- renderPlot({
+    erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
+    erosion_risks <- select(
+      arbor_parcel,
+      c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES))
+    erosion_meas <- select(arbor_parcel, c(PARCELID, GREAT_ERO_LEN, LESS_ERO_LEN))
+    
+    
+    erosion_risks <- erosion_risks %>% replace(is.na(.), 0) %>%
+      mutate(EROSION_RISK_SUM = rowSums(across(where(is.numeric))),
+             EROSION_RISK_PRES=EROSION_RISK_SUM > 0)
+    erosion_control <- erosion_control %>% replace(is.na(.), 0) %>%
+      mutate(EROSION_CTRL_SUM = rowSums(across(where(is.numeric))),
+             EROSION_CTRL_PRES=EROSION_CTRL_SUM > 0)
+    
+    erosion_df <- left_join(erosion_risks,erosion_control,by="PARCELID")
+    erosion_pres <- erosion_df %>% select(EROSION_CTRL_PRES, EROSION_RISK_PRES)
+    
+    
+    draw.pairwise.venn(area1 = sum(erosion_pres$EROSION_CTRL_PRES),                        
+                       area2 = sum(erosion_pres$EROSION_RISK_PRES),
+                       cross.area = nrow(erosion_pres %>% filter(EROSION_CTRL_PRES==1 & EROSION_RISK_PRES==1)), 
+                       category = c("Erosion Control Structures Present:\n 22 out of 89 parcels",
+                                    "Erosion Risk Factors\n Documented:\n 6 out of 89 parcels"),
+                       cat.fontfamily = "sans",
+                       cat.default.pos="text",
+                       col = "chocolate4",
+                       fill = c("wheat2", "cornsilk"),
+                       alpha = 1)
+  })
 
 }
 
