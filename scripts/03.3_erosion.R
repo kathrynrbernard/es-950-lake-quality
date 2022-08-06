@@ -131,48 +131,13 @@ grid.newpage()
 draw.pairwise.venn(area1 = sum(erosion_pres$EROSION_CTRL_PRES),                        
                    area2 = sum(erosion_pres$EROSION_RISK_PRES),
                    cross.area = nrow(erosion_pres %>% filter(EROSION_CTRL_PRES==1 & EROSION_RISK_PRES==1)), 
+                   category = c("Erosion Control Structures Present:\n 22 out of 89 parcels",
+                                "Erosion Risk Factors\n Documented:\n 6 out of 89 parcels"),
+                   cat.fontfamily = "sans",
+                   cat.default.pos="text",
                    col = "chocolate4",
                    fill = c("wheat2", "cornsilk"),
-                   alpha = 1,
-                   category = c("Erosion Control Structures Present", "Erosion Risk Factors Documented"))
-grid.newpage()
-p1 <- draw.single.venn(area=sum(erosion_pres$EROSION_CTRL_PRES),
-                 category = "Erosion Control Structures Present",
-                 col = "chocolate4",
-                 fill = "wheat2",
-                 alpha = 1)
-p2 <- draw.single.venn(area=sum(erosion_pres$EROSION_RISK_PRES),
-                       category = "Erosion Risk Factors Documented",
-                       col = "chocolate4",
-                       fill = "cornsilk",
-                       alpha = 1)
-grid.arrange(gTree(children=p1),gTree(children=p2), nrow=1)
-
-library(cowplot)
-grid.newpage()
-cowplot::plot_grid(gTree(children=p1),gTree(children=p2), labels=c("Erosion Control Structures Present", "Factors Documented"))
-
-erosion_pres %>% filter(EROSION_CTRL_PRES==1 & EROSION_RISK_PRES==1)
-
-library(ggvenn)
-ggvenn(erosion_pres,
-       fill_color=c("wheat2", "cornsilk"),
-       fill_alpha=1,
-       stroke_color="chocolate4")
-
-library(ggVennDiagram)
-erosion_pres$EROSION_CTRL_PRES <- as.numeric(erosion_pres$EROSION_CTRL_PRES)
-erosion_pres$EROSION_RISK_PRES <- as.numeric(erosion_pres$EROSION_RISK_PRES)
-ggVennDiagram(erosion_pres)
-
-venn <- Venn(erosion_pres)
-d <- process_data(venn)
-
-ggplot() +
-  geom_sf(data = venn_region(d)) +
-  geom_sf(data = venn_setedge(d)) +
-  geom_sf_text(aes(label = name), data = venn_setlabel(d)) +
-  geom_sf_text(aes(label = count), data = venn_region(d))
+                   alpha = 1)
 
 
 parcel_ero <- select(parcel_dd,c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES))
@@ -181,12 +146,4 @@ parcel_ero %>% ggplot(aes(x=parcel_ero, y=Presence,fill=PARCELID)) +
 
 
 erosion_parcels <- erosion_df %>% filter(PARCELID %in% parcel_dd$PARCELID)
-
-
-
-
-# ideas
-# parcels that have concerns vs parcels that have controls
-# heatmap of all erosion control structures
-
 
