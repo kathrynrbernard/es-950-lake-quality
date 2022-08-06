@@ -146,6 +146,7 @@ ui <- fluidPage(
                   style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                          column(7, img(src='erosion_venn.png', float = "right", style="width: 80%")),
+                         # code to generate venn diagram is in 03.3_erosion.R
                          column(5, h5("Summary"),
                                 p("This Venn diagram looks a little unconventional. The two groups don't overlap at all! None of the parcels
                                   with documented risk factors for erosion have structures in place that can help mitigate the effects of
@@ -155,15 +156,21 @@ ui <- fluidPage(
                                   Some of those steps could include putting controlling structures, like riprap or seawall, in place.
                                   As we discussed above, native plantings on the shoreline are also a great way to help mitigate the effects
                                   of erosion.",style="font-size:16px;"))),
-                h3("Checking in on parcels of interest",style="text-decoration: underline;"),
-                p("Filler text",
-                  style="font-size:18px;")
-                #fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                         #column(7,plotOutput("erosion_venn")),
-                         #column(5, h5("Summary"),
-                               # p(style="font-size:16px;"),
-                                #h5("Recommendations"),
-                                #p(style="font-size:16px;")))
+                h3("Parcel Check-in",style="text-decoration: underline;"),
+                p("Let's take a closer look at what types of erosion mitigation and risk factors are present for our three parcels of interest.",
+                  style="font-size:18px;"),
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                         column(7,plotOutput("erosion_parcels")),
+                         column(5, h5("Summary"),
+                               p("In this detailed view, we can clearly see that the parcel with a documented channel flow present
+                                 does not have any mitigating factors in place that could help prevent erosion from happening in the
+                                 bank zone. Interestingly, the two parcels with no documented concerns have a large amount of riprap,
+                                 seawall, and other structures that help mitigate erosion in place.",style="font-size:16px;"),
+                                h5("Recommendations"),
+                                p("The landowner on the parcel with a documented concern should investigate what types of structures would
+                                  help lessen the impact of erosion on their property. While seawall and riprap can be helpful in some
+                                  situations, the best solution to help reduce erosion while also creating habitat for local animals is to
+                                  add native plantings in and around the bank zone.",style="font-size:16px;")))
        )
     ),
 )
@@ -270,17 +277,7 @@ server <- function(input, output) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15))
   })
-  
-  output$erosion_plot <- renderPlot({
-    
-    # Plot showing Riprap length
-    erosion_control %>% ggplot(aes(x = RIPRAP_LEN)) +
-      geom_histogram(binwidth = 5, fill = 'chocolate4')+
-      ggtitle("Length of Riprap across Parcels") +
-      labs(x = "Riprap Length (Feet)", y = "Count") + 
-      theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15))
-  })
+
   
   output$erosion_factors <- renderPlot({
     
@@ -301,38 +298,54 @@ server <- function(input, output) {
     grid.arrange(e1,e2,e3, nrow=1)
     
   })
-  
-  output$erosion_venn <- renderPlot({
-    erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
-    erosion_risks <- select(
-      arbor_parcel,
-      c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES))
-    erosion_meas <- select(arbor_parcel, c(PARCELID, GREAT_ERO_LEN, LESS_ERO_LEN))
-    
-    
-    erosion_risks <- erosion_risks %>% replace(is.na(.), 0) %>%
-      mutate(EROSION_RISK_SUM = rowSums(across(where(is.numeric))),
-             EROSION_RISK_PRES=EROSION_RISK_SUM > 0)
-    erosion_control <- erosion_control %>% replace(is.na(.), 0) %>%
-      mutate(EROSION_CTRL_SUM = rowSums(across(where(is.numeric))),
-             EROSION_CTRL_PRES=EROSION_CTRL_SUM > 0)
-    
-    erosion_df <- left_join(erosion_risks,erosion_control,by="PARCELID")
-    erosion_pres <- erosion_df %>% select(EROSION_CTRL_PRES, EROSION_RISK_PRES)
-    
-    
-    draw.pairwise.venn(area1 = sum(erosion_pres$EROSION_CTRL_PRES),                        
-                       area2 = sum(erosion_pres$EROSION_RISK_PRES),
-                       cross.area = nrow(erosion_pres %>% filter(EROSION_CTRL_PRES==1 & EROSION_RISK_PRES==1)), 
-                       category = c("Erosion Control Structures Present:\n 22 out of 89 parcels",
-                                    "Erosion Risk Factors\n Documented:\n 6 out of 89 parcels"),
-                       cat.fontfamily = "sans",
-                       cat.default.pos="text",
-                       col = "chocolate4",
-                       fill = c("wheat2", "cornsilk"),
-                       alpha = 1)
-  })
 
+  output$erosion_parcels <- renderPlot({
+    parcel_control_pivot <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN)) %>% 
+      filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+      pivot_longer(!PARCELID, names_to="Control", values_to="Length")
+    parcel_risk_pivot <- select(
+      arbor_parcel,
+      c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES)) %>% 
+      filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+      pivot_longer(!PARCELID, names_to="Risk", values_to="Presence")
+    
+    p1 <- parcel_risk_pivot %>% replace(is.na(.), 0) %>% 
+      mutate(Presence=case_when(Presence==0 ~ 0,
+                                Presence==1 | Presence==2 ~ 1)) %>% 
+      ggplot(aes(x=Risk,y=Presence, fill=PARCELID)) +
+      geom_bar(stat="identity", position="dodge",color="chocolate4") +
+      scale_x_discrete(limits=c("OTHER_RUNOFF_PRES","LAWN_LAKE_PRES", "STAIR_LAKE_PRES", "POINT_SOURCE_PRES",
+                                "SAND_DEP_PRES","CHANNEL_FLOW_PRES"),
+                       labels=c("Other runoff factor", "Lawn sloping into lake", "Stairs sloping into lake", "Point source",
+                                "Sand deposits", "Channel flow")) +
+      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+      scale_y_continuous(breaks=c(0,1), labels=c("False", "True")) +
+      labs(x="Risk Factor", y="Presence of Risk Factor", title="Erosion Risk Factors per Parcel") +
+      coord_flip() +
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12))
+    
+    p2 <- parcel_control_pivot %>% 
+      ggplot(aes(x=Control,y=Length, fill=PARCELID)) +
+      geom_bar(stat="identity", position="dodge",color="chocolate4") +
+      scale_x_discrete(limits=c("EROSION_CNTRL_LEN","VERTICAL_WALL_LEN", "RIPRAP_LEN"),
+                       labels=c("Other erosion control", "Vertical seawall", "Riprap")) +
+      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+      labs(x="Type of Control Structure", y="Length of Control Structure (Feet)", title="Erosion Control Structures per Parcel") +
+      coord_flip() +
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12))
+    grid.arrange(p1,p2,nrow=2)
+  })
+  
 }
 
 # Run the application

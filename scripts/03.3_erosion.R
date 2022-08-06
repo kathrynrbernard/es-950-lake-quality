@@ -107,8 +107,8 @@ p <- erosion_control_pivot %>% ggplot(aes(x=CONTROL_TYPE,y=PARCELID,fill=LENGTH,
         axis.text.y = element_blank())
 ggplotly(p, tooltip="text")
 
-# Parcel Drilldown Plot ---------------------------------------------------
-
+# Control vs Risk ---------------------------------------------------
+# venn diagram
 erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
 erosion_risks <- select(
   arbor_parcel,
@@ -137,18 +137,57 @@ draw.pairwise.venn(area1 = sum(erosion_pres$EROSION_CTRL_PRES),
                    cat.fontfamily=rep("sans", 2),
                    cat.default.pos="text",
                    cex=c(0,0,0),
-                   #at.cex=c(1,0.5),
                    col = "chocolate4",
                    fill = c("wheat2", "cornsilk"),
                    alpha = c(1,1))
 
 
+# Parcel Drilldown --------------------------------------------------------
+parcel_control_pivot <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN)) %>% 
+  filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+  pivot_longer(!PARCELID, names_to="Control", values_to="Length")
+parcel_risk_pivot <- select(
+  arbor_parcel,
+  c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES)) %>% 
+  filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+  pivot_longer(!PARCELID, names_to="Risk", values_to="Presence")
+
+p1 <- parcel_risk_pivot %>% replace(is.na(.), 0) %>% 
+  mutate(Presence=case_when(Presence==0 ~ 0,
+                            Presence==1 | Presence==2 ~ 1)) %>% 
+  ggplot(aes(x=Risk,y=Presence, fill=PARCELID)) +
+  geom_bar(stat="identity", position="dodge",color="chocolate4") +
+  scale_x_discrete(limits=c("OTHER_RUNOFF_PRES","LAWN_LAKE_PRES", "STAIR_LAKE_PRES", "POINT_SOURCE_PRES",
+                            "SAND_DEP_PRES","CHANNEL_FLOW_PRES"),
+                   labels=c("Other runoff factor", "Lawn sloping into lake", "Stairs sloping into lake", "Point source",
+                            "Sand deposits", "Channel flow")) +
+  scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+  scale_y_continuous(breaks=c(0,1), labels=c("False", "True")) +
+  labs(x="Risk Factor", y="Presence of Risk Factor", title="Erosion Risk Factors per Parcel") +
+  coord_flip() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+
+p2 <- parcel_control_pivot %>% 
+  ggplot(aes(x=Control,y=Length, fill=PARCELID)) +
+  geom_bar(stat="identity", position="dodge",color="chocolate4") +
+  scale_x_discrete(limits=c("EROSION_CNTRL_LEN","VERTICAL_WALL_LEN", "RIPRAP_LEN"),
+                   labels=c("Other erosion control", "Vertical seawall", "Riprap")) +
+  scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+  labs(x="Type of Control Structure", y="Length of Control Structure (Feet)", title="Erosion Control Structures per Parcel") +
+  coord_flip() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5,size=15))
+grid.arrange(p1,p2,nrow=2)
 
 
-parcel_ero <- select(parcel_dd,c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES))
-parcel_ero %>% ggplot(aes(x=parcel_ero, y=Presence,fill=PARCELID)) +
-  geom_bar(stat="identity",position="dodge")
+parcel_control_pivot %>% ggplot(aes(x=Control,y=Length, fill=PARCELID)) +
+  geom_bar(stat="identity", position="dodge")
 
+erosion_df <- left_join(erosion_df,erosion_meas,by="PARCELID")
+parcel_erosion <- erosion_df %>% filter(PARCELID %in% parcel_dd$PARCELID)
 
-erosion_parcels <- erosion_df %>% filter(PARCELID %in% parcel_dd$PARCELID)
-
+parcel_erosion_sub <- parcel_erosion %>% select(PARCELID,EROSION_RISK_PRES, EROSION_CTRL_PRES)
+parcel_erosion_pivot <- parcel_erosion_sub %>% pivot_longer(!PARCELID, names_to="Variable", values_to="Value")
+parcel_erosion_pivot %>% ggplot(aes(x=Variable,y=Value,fill=PARCELID)) +
+  geom_bar(stat="identity")
