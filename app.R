@@ -124,20 +124,64 @@ ui <- fluidPage(
                          p("The parcel that has many piers and boat lifts
                             is the same parcel from the Land tab that had a high percentage of manicured lawn and a high
                            number of built structures in the riparian zone. It's important for the owners of this parcel to be
-                           conscious of the structures they're building and the impact they can have on habitat and lake health.",style="font-size:16px;")))
+                           conscious of the structures they're building and the impact they can have on habitat and lake health.",
+                           style="font-size:16px;")))
        ),
+<<<<<<< HEAD
        tabPanel("Erosion",
                 h3("The Riparian Zone at a glance",style="text-decoration: underline;"),
+=======
+       tabPanel("Erosion", 
+                h3("The Bank Zone at a glance",style="text-decoration: underline;"),
+                p("The Bank Zone is where the water meets the land, and is a location where landowners have a lot of potential to minimize the harms
+                  of erosion on their lakeshore. Let's take a look at what kind of erosion control structures are most common on Big Arbor
+                  Vitae Lake."
+                  ,style="font-size:18px;"),
+>>>>>>> d79574032ea19a321c265639c925ba1ff06d1664
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                  column(7, plotOutput("erosion_plot")),
+                  column(7, plotOutput("erosion_factors")),
                    column(5, h5("Summary"),
-                          p("This plot shows the the count of parcels that have riprap of a certain amount of riprap. 
-                          We can see that a large amount of parcels do not have any riprap, 
-                            but there are a few with a good amount of riprap for erosion protection.",style="font-size:16px;")),
+                          p(".",style="font-size:16px;"),
+                          h5("Recommendations"),
+                          p(style="font-size:16px;"))),
+                h3("Breaking it down",style="text-decoration: underline;"),
+                p("From the heatmap above, we can see that there aren't a lot of erosion control structures in place on this lake. Let's see
+                  where the erosion control structures are primarily located - are they predominantly on parcels that have documented risk
+                  factors for erosion?",
+                  style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+<<<<<<< HEAD
                          column(7, plotlyOutput("erosion_factors")),
                          column(5, "Here we want to compare the amount of riprap to other erosion control features.
                                 There are some vertical walls in place to prevent erosion, as well as some other control features.")))
+=======
+                         column(7, img(src='erosion_venn.png', float = "right", style="width: 80%")),
+                         # code to generate venn diagram is in 03.3_erosion.R
+                         column(5, h5("Summary"),
+                                p("This Venn diagram looks a little unconventional. The two groups don't overlap at all! None of the parcels
+                                  with documented risk factors for erosion have structures in place that can help mitigate the effects of
+                                  erosion.",style="font-size:16px;"),
+                                h5("Recommendations"),
+                                p("Landowners on parcels with identified risk factors for erosion should take steps to mitigate those risks.
+                                  Some of those steps could include putting controlling structures, like riprap or seawall, in place.
+                                  As we discussed above, native plantings on the shoreline are also a great way to help mitigate the effects
+                                  of erosion.",style="font-size:16px;"))),
+                h3("Parcel Check-in",style="text-decoration: underline;"),
+                p("Let's take a closer look at what types of erosion mitigation and risk factors are present for our three parcels of interest.",
+                  style="font-size:18px;"),
+                fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
+                         column(7,plotOutput("erosion_parcels")),
+                         column(5, h5("Summary"),
+                               p("In this detailed view, we can clearly see that the parcel with a documented channel flow present
+                                 does not have any mitigating factors in place that could help prevent erosion from happening in the
+                                 bank zone. Interestingly, the two parcels with no documented concerns have a large amount of riprap,
+                                 seawall, and other structures that help mitigate erosion in place.",style="font-size:16px;"),
+                                h5("Recommendations"),
+                                p("The landowner on the parcel with a documented concern should investigate what types of structures would
+                                  help lessen the impact of erosion on their property. While seawall and riprap can be helpful in some
+                                  situations, the best solution to help reduce erosion while also creating habitat for local animals is to
+                                  add native plantings in and around the bank zone.",style="font-size:16px;")))
+>>>>>>> d79574032ea19a321c265639c925ba1ff06d1664
        )
     ),
 )
@@ -147,6 +191,7 @@ server <- function(input, output) {
   
   output$land_cover_heatmap <- renderPlotly({ # need to use renderPlotly instead of renderPlot
     
+    # plot heatmap of land cover types for all parcels
     # ggplot converted to plotly (plotly allows a hover bubble for displaying parcel id and percentage)
     p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE,"%"))) +
       geom_tile() +
@@ -162,39 +207,9 @@ server <- function(input, output) {
     ggplotly(p, tooltip="text")
   })
   
-  output$land_development_sh <- renderPlot({
-    
-    devel_sh_plot <-
-      arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
-      ggplot(aes(x = SHRUB_HERB_PCT)) +
-      geom_bar(fill = greens18, color=greens[9], aes(y = (..count..) / sum(..count..))) +
-      scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                         limits = c(0, .45)) +
-      xlim(0, 100) +
-      labs(title = "Developed Parcels", x = "Percent Shrub/Herbaceous Cover", y =
-             "Percent of Parcels") +
-      theme_minimal() +
-      theme(axis.title.x = element_text(size=15),
-            axis.title.y = element_text(size=15))
-    
-    undevel_sh_plot <-
-      arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
-      ggplot(aes(x = SHRUB_HERB_PCT)) +
-      geom_bar(fill = greens4, color=greens[9], aes(y = (..count..) / sum(..count..))) +
-      scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                         limits = c(0, .45)) +
-      xlim(0, 100) +
-      labs(title = "Undeveloped Parcels", x = "Percent Shrub/Herbaceous Cover", y =
-             "") +
-      theme_minimal() +
-      theme(axis.title.x = element_text(size=15))
-    # plot side by side
-    grid.arrange(devel_sh_plot, undevel_sh_plot, ncol=2, 
-                 top=textGrob("Percent Shrub/Herbaceous Coverage by Development Status",gp = gpar(fontsize = 20)))
-  })
-  
   output$avg_sh_lawn_development <- renderPlot({
-    ## mean shrub/herb and manicured lawn coverage, split by development status
+    
+    # mean shrub/herb and manicured lawn coverage, split by development status
     arbor_parcel %>% 
       group_by(DEVELOPED) %>% 
       summarize(shrub_herb=mean(SHRUB_HERB_PCT),
@@ -213,6 +228,7 @@ server <- function(input, output) {
   
   output$land_cover_parcels <- renderPlot({
     
+    # plot land cover percentages for 3 parcels and display number of structures
     labels <- c(paste("Parcel ID: ",factor(parcel_dd$PARCELID), "\nTotal Structures: ", parcel_dd$STRUCTURES_TOTAL_LAND))
     parcel_pivot %>% mutate(PARCELID=factor(parcel_pivot$PARCELID, 
                                             levels=c("2-2649", "2-2562-02", "2-2686-16"),
@@ -259,6 +275,7 @@ server <- function(input, output) {
   
   output$aquatic_parcel_struc_dd <- renderPlot({
 
+    # plot structures for 3 parcels
     parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) + 
       geom_bar(stat="identity", position="dodge", color=blues[9]) +
       scale_x_continuous(breaks=seq(0:10)) + # show axis in whole numbers
@@ -271,6 +288,7 @@ server <- function(input, output) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15))
   })
+<<<<<<< HEAD
   
   output$erosion_plot <- renderPlot({
     
@@ -282,6 +300,9 @@ server <- function(input, output) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15))
   })
+=======
+
+>>>>>>> d79574032ea19a321c265639c925ba1ff06d1664
   
   output$erosion_factors <- renderPlotly({
     
@@ -308,6 +329,54 @@ server <- function(input, output) {
     )
     
   })
+
+  output$erosion_parcels <- renderPlot({
+    parcel_control_pivot <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN)) %>% 
+      filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+      pivot_longer(!PARCELID, names_to="Control", values_to="Length")
+    parcel_risk_pivot <- select(
+      arbor_parcel,
+      c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES)) %>% 
+      filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+      pivot_longer(!PARCELID, names_to="Risk", values_to="Presence")
+    
+    p1 <- parcel_risk_pivot %>% replace(is.na(.), 0) %>% 
+      mutate(Presence=case_when(Presence==0 ~ 0,
+                                Presence==1 | Presence==2 ~ 1)) %>% 
+      ggplot(aes(x=Risk,y=Presence, fill=PARCELID)) +
+      geom_bar(stat="identity", position="dodge",color="chocolate4") +
+      scale_x_discrete(limits=c("OTHER_RUNOFF_PRES","LAWN_LAKE_PRES", "STAIR_LAKE_PRES", "POINT_SOURCE_PRES",
+                                "SAND_DEP_PRES","CHANNEL_FLOW_PRES"),
+                       labels=c("Other runoff factor", "Lawn sloping into lake", "Stairs sloping into lake", "Point source",
+                                "Sand deposits", "Channel flow")) +
+      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+      scale_y_continuous(breaks=c(0,1), labels=c("False", "True")) +
+      labs(x="Risk Factor", y="Presence of Risk Factor", title="Erosion Risk Factors per Parcel") +
+      coord_flip() +
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12))
+    
+    p2 <- parcel_control_pivot %>% 
+      ggplot(aes(x=Control,y=Length, fill=PARCELID)) +
+      geom_bar(stat="identity", position="dodge",color="chocolate4") +
+      scale_x_discrete(limits=c("EROSION_CNTRL_LEN","VERTICAL_WALL_LEN", "RIPRAP_LEN"),
+                       labels=c("Other erosion control", "Vertical seawall", "Riprap")) +
+      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+      labs(x="Type of Control Structure", y="Length of Control Structure (Feet)", title="Erosion Control Structures per Parcel") +
+      coord_flip() +
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12))
+    grid.arrange(p1,p2,nrow=2)
+  })
+  
 }
 
 # Run the application
