@@ -132,11 +132,11 @@ ui <- fluidPage(
                    column(5, h5("Summary"),
                           p("This plot shows the the count of parcels that have riprap of a certain amount of riprap. 
                           We can see that a large amount of parcels do not have any riprap, 
-                            but there are a few with a good amount of riprap for erosion protection.",style="font-size:16px;")),
+                            but there are a few with a good amount of riprap for erosion protection.",style="font-size:16px;"))),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                          column(7, plotOutput("erosion_factors")),
                          column(5, "Here we want to compare the amount of riprap to other erosion control features.
-                                There are some vertical walls in place to prevent erosion, as well as some other control features.")))
+                                There are some vertical walls in place to prevent erosion, as well as some other control features."))
        )
     ),
 )
@@ -146,6 +146,7 @@ server <- function(input, output) {
   
   output$land_cover_heatmap <- renderPlotly({ # need to use renderPlotly instead of renderPlot
     
+    # plot heatmap of land cover types for all parcels
     # ggplot converted to plotly (plotly allows a hover bubble for displaying parcel id and percentage)
     p <- land_cover %>% ggplot(aes(x=VEG_TYPE,y = PARCELID, fill=PCT_COVERAGE, text=paste0("Parcel ID: ", PARCELID, "\nPercent Covered: ",PCT_COVERAGE,"%"))) +
       geom_tile() +
@@ -161,39 +162,9 @@ server <- function(input, output) {
     ggplotly(p, tooltip="text")
   })
   
-  output$land_development_sh <- renderPlot({
-    
-    devel_sh_plot <-
-      arbor_parcel %>% filter(DEVELOPED == "TRUE") %>%
-      ggplot(aes(x = SHRUB_HERB_PCT)) +
-      geom_bar(fill = greens18, color=greens[9], aes(y = (..count..) / sum(..count..))) +
-      scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                         limits = c(0, .45)) +
-      xlim(0, 100) +
-      labs(title = "Developed Parcels", x = "Percent Shrub/Herbaceous Cover", y =
-             "Percent of Parcels") +
-      theme_minimal() +
-      theme(axis.title.x = element_text(size=15),
-            axis.title.y = element_text(size=15))
-    
-    undevel_sh_plot <-
-      arbor_parcel %>% filter(DEVELOPED == "FALSE") %>%
-      ggplot(aes(x = SHRUB_HERB_PCT)) +
-      geom_bar(fill = greens4, color=greens[9], aes(y = (..count..) / sum(..count..))) +
-      scale_y_continuous(labels = scales::percent_format(accuracy = 1L),
-                         limits = c(0, .45)) +
-      xlim(0, 100) +
-      labs(title = "Undeveloped Parcels", x = "Percent Shrub/Herbaceous Cover", y =
-             "") +
-      theme_minimal() +
-      theme(axis.title.x = element_text(size=15))
-    # plot side by side
-    grid.arrange(devel_sh_plot, undevel_sh_plot, ncol=2, 
-                 top=textGrob("Percent Shrub/Herbaceous Coverage by Development Status",gp = gpar(fontsize = 20)))
-  })
-  
   output$avg_sh_lawn_development <- renderPlot({
-    ## mean shrub/herb and manicured lawn coverage, split by development status
+    
+    # mean shrub/herb and manicured lawn coverage, split by development status
     arbor_parcel %>% 
       group_by(DEVELOPED) %>% 
       summarize(shrub_herb=mean(SHRUB_HERB_PCT),
@@ -212,6 +183,7 @@ server <- function(input, output) {
   
   output$land_cover_parcels <- renderPlot({
     
+    # plot land cover percentages for 3 parcels and display number of structures
     labels <- c(paste("Parcel ID: ",factor(parcel_dd$PARCELID), "\nTotal Structures: ", parcel_dd$STRUCTURES_TOTAL_LAND))
     parcel_pivot %>% mutate(PARCELID=factor(parcel_pivot$PARCELID, 
                                             levels=c("2-2649", "2-2562-02", "2-2686-16"),
@@ -258,6 +230,7 @@ server <- function(input, output) {
   
   output$aquatic_parcel_struc_dd <- renderPlot({
 
+    # plot structures for 3 parcels
     parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) + 
       geom_bar(stat="identity", position="dodge", color=blues[9]) +
       scale_x_continuous(breaks=seq(0:10)) + # show axis in whole numbers
@@ -301,6 +274,8 @@ server <- function(input, output) {
     grid.arrange(e1,e2,e3, nrow=1)
     
   })
+  
+
 }
 
 # Run the application
