@@ -336,6 +336,9 @@ server <- function(input, output) {
         axis.text.y = element_blank())
     ggplotly(p, tooltip="text")
     
+    erosion_prevent <- select(arbor_parcel,
+                              c(RIPRAP_LEN,VERTICAL_WALL_LEN,EROSION_CNTRL_LEN,PARCELID))
+    erosion_prevent <- pivot_longer(erosion_prevent,cols=!PARCELID,names_to='ERO_PRE',values_to='LEN')
     plotly::plot_ly(
       data = erosion_prevent,
       x = ~ERO_PRE, y = ~PARCELID, z = ~LEN, text = ~paste('Parcel ID: ', PARCELID),
