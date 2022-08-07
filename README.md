@@ -1,5 +1,13 @@
 # ES 950: Lake Quality Project
-Group project for ES 950 to analyze data from the DNR on Wisconsin lake quality.
+Group project for ES 950 to analyze data from the DNR on Wisconsin lake quality. The goal of this project was to create an R Shiny application with visualizations representing the lake's health/quality and recommendations for lake associations and landowners based on that data.
+
+## Overview of the repository
+This repository contains code used to generate an R Shiny application and some supplementary analysis code.
+* Shiny application: `app.R` and `shiny_helper.R` files
+  * Images for the application: `www` folder
+* Supplementary analysis code: all files in the `scripts` directory
+* Wireframe diagrams: `Wireframes.pdf` document
+* R project file: `es-950-lake-quality.Rproj` file
 
 ## Parcel dataset
 ### Variable definitions
