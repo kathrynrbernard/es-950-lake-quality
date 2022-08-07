@@ -194,10 +194,14 @@ server <- function(input, output) {
                        labels=c("Shrub/Herb", "Manicured Lawn", "Impervious", "Other")) +
       theme_minimal() +
       theme(text = element_text(family="arial"),
-            plot.title = element_text(hjust = 0.5,size=15),
+            plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
             axis.ticks.y=element_blank(),
             axis.text.y = element_blank())
     ggplotly(p, tooltip="text")
+    
   })
   
   output$avg_sh_lawn_development <- renderPlot({
@@ -216,7 +220,13 @@ server <- function(input, output) {
       scale_x_discrete(limits=c(TRUE,FALSE),labels=c("Developed","Undeveloped")) +
       scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs 
       theme_minimal()  +
-      theme(plot.title = element_text(hjust = 0.5,size=15))
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12),
+            legend.title=element_text(size=15),
+            legend.text=element_text(size=12))
   })
   
   output$land_cover_parcels <- renderPlot({
@@ -233,7 +243,13 @@ server <- function(input, output) {
                        labels=c("Shrub/Herb", "Lawn", "Impervious", "Agriculture", "Other")) +
       facet_wrap(facets=vars(PARCELID)) +
       coord_flip() + 
-      theme_minimal()
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12),
+            strip.text.x = element_text(size = 15)) # facet titles
     
   })
   
@@ -247,9 +263,13 @@ server <- function(input, output) {
       scale_fill_manual(name="Aquatic Vegetation Present", values = blues2) +
       guides(color="none") +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15),
+      theme(plot.title = element_text(hjust = 0.5,size=18),
             axis.title.x = element_text(size=15),
-            axis.title.y = element_text(size=15))
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12),
+            legend.title=element_text(size=15),
+            legend.text=element_text(size=12))
     
   })
   
@@ -263,7 +283,11 @@ server <- function(input, output) {
       geom_point(size=5, color=blues20[20],fill=c(blues,blues[9], blues[9]) ,alpha=0.7,shape=21,stroke=1) +
       labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15))
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12))
   })
   
   output$aquatic_parcel_struc_dd <- renderPlot({
@@ -279,7 +303,13 @@ server <- function(input, output) {
       scale_fill_manual(values=blues[c(7,3,1)], name="Parcel ID",breaks=c("2-2686-16", "2-2649", "2-2562-02")) + # re-title and re-order legend
       labs(x="Number of Structures", y="Type of Structure", title="Count of Each Type of Structure per Parcel") +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15))
+      theme(plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.text.y=element_text(size=12),
+            legend.title=element_text(size=15),
+            legend.text=element_text(size=12))
   })
 
   
@@ -317,15 +347,8 @@ server <- function(input, output) {
   })
 
   output$erosion_parcels <- renderPlot({
-    parcel_control_pivot <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN)) %>% 
-      filter(PARCELID %in% parcel_dd$PARCELID) %>% 
-      pivot_longer(!PARCELID, names_to="Control", values_to="Length")
-    parcel_risk_pivot <- select(
-      arbor_parcel,
-      c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES)) %>% 
-      filter(PARCELID %in% parcel_dd$PARCELID) %>% 
-      pivot_longer(!PARCELID, names_to="Risk", values_to="Presence")
     
+    # plot controls and risks for each of 3 parcels
     p1 <- parcel_risk_pivot %>% replace(is.na(.), 0) %>% 
       mutate(Presence=case_when(Presence==0 ~ 0,
                                 Presence==1 | Presence==2 ~ 1)) %>% 

@@ -181,8 +181,13 @@ parcel_structures <- select(parcel_dd,c(PARCELID,PIERS_CNT,BOAT_LIFT_CNT,SWIM_RA
 parcel_struc_pivot <- pivot_longer(parcel_structures,cols=!PARCELID,names_to = "Type", values_to = "Count")
 
 # Erosion
-erosion_control <-
-  select(arbor_parcel,
-         c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
+parcel_control_pivot <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN)) %>% 
+  filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+  pivot_longer(!PARCELID, names_to="Control", values_to="Length")
+parcel_risk_pivot <- select(
+  arbor_parcel,
+  c(PARCELID,POINT_SOURCE_PRES,CHANNEL_FLOW_PRES,STAIR_LAKE_PRES,LAWN_LAKE_PRES,SAND_DEP_PRES,OTHER_RUNOFF_PRES)) %>% 
+  filter(PARCELID %in% parcel_dd$PARCELID) %>% 
+  pivot_longer(!PARCELID, names_to="Risk", values_to="Presence")
 
 
