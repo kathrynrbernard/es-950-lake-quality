@@ -136,10 +136,13 @@ ui <- fluidPage(
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7, plotlyOutput("erosion_factors")),
                    column(5, h5("Summary"),
-                          p("Here we want to compare the amount of riprap to other erosion control features.
-                                There are some vertical walls in place to prevent erosion, as well as some other control features.",style="font-size:16px;"),
+                          p("Here we want to compare the erosion control features on Big Arbor Lake.
+                                There are some vertical walls in place to prevent erosion, as well as some other control features.
+                            Riprap is the most dominant type of erosion controll on this lake. ",style="font-size:16px;"),
                           h5("Recommendations"),
-                          p(style="font-size:16px;"))),
+                          p("While preventing erosion is useful, the way we prevent bank erosion matters. Having these rigid barriers
+                            can sometimes be doing more harm than good in erosion prevention. Let's see if there are any more erosion concerns where
+                            in the future we can use more natural erosion prevention methods.",style="font-size:16px;"))),
                 h3("Breaking it down",style="text-decoration: underline;"),
                 p("From the heatmap above, we can see that there aren't a lot of erosion control structures in place on this lake. Let's see
                   where the erosion control structures are primarily located - are they predominantly on parcels that have documented risk
