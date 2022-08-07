@@ -127,21 +127,17 @@ ui <- fluidPage(
                            conscious of the structures they're building and the impact they can have on habitat and lake health.",
                            style="font-size:16px;")))
        ),
-<<<<<<< HEAD
-       tabPanel("Erosion",
-                h3("The Riparian Zone at a glance",style="text-decoration: underline;"),
-=======
        tabPanel("Erosion", 
                 h3("The Bank Zone at a glance",style="text-decoration: underline;"),
                 p("The Bank Zone is where the water meets the land, and is a location where landowners have a lot of potential to minimize the harms
                   of erosion on their lakeshore. Let's take a look at what kind of erosion control structures are most common on Big Arbor
                   Vitae Lake."
                   ,style="font-size:18px;"),
->>>>>>> d79574032ea19a321c265639c925ba1ff06d1664
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-                  column(7, plotOutput("erosion_factors")),
+                  column(7, plotlyOutput("erosion_factors")),
                    column(5, h5("Summary"),
-                          p(".",style="font-size:16px;"),
+                          p("Here we want to compare the amount of riprap to other erosion control features.
+                                There are some vertical walls in place to prevent erosion, as well as some other control features.",style="font-size:16px;"),
                           h5("Recommendations"),
                           p(style="font-size:16px;"))),
                 h3("Breaking it down",style="text-decoration: underline;"),
@@ -150,11 +146,6 @@ ui <- fluidPage(
                   factors for erosion?",
                   style="font-size:18px;"),
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
-<<<<<<< HEAD
-                         column(7, plotlyOutput("erosion_factors")),
-                         column(5, "Here we want to compare the amount of riprap to other erosion control features.
-                                There are some vertical walls in place to prevent erosion, as well as some other control features.")))
-=======
                          column(7, img(src='erosion_venn.png', float = "right", style="width: 80%")),
                          # code to generate venn diagram is in 03.3_erosion.R
                          column(5, h5("Summary"),
@@ -181,7 +172,6 @@ ui <- fluidPage(
                                   help lessen the impact of erosion on their property. While seawall and riprap can be helpful in some
                                   situations, the best solution to help reduce erosion while also creating habitat for local animals is to
                                   add native plantings in and around the bank zone.",style="font-size:16px;")))
->>>>>>> d79574032ea19a321c265639c925ba1ff06d1664
        )
     ),
 )
@@ -288,21 +278,7 @@ server <- function(input, output) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=15))
   })
-<<<<<<< HEAD
-  
-  output$erosion_plot <- renderPlot({
-    
-    # Plot showing Riprap length
-    erosion_control %>% ggplot(mapping=aes(x = RIPRAP_LEN)) +
-      geom_histogram(binwidth = 5, fill = 'chocolate4')+
-      ggtitle("Length of Riprap across Parcels") +
-      labs(x = "Riprap Length (Feet)", y = "Count") + 
-      theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=15))
-  })
-=======
 
->>>>>>> d79574032ea19a321c265639c925ba1ff06d1664
   
   output$erosion_factors <- renderPlotly({
     
