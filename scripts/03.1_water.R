@@ -37,7 +37,7 @@ for (color in blues){
 }
 blues20[c(19,20)] <- blues[c(9,9)]
 
-  
+# bar plot  
 arbor_parcel %>% ggplot(aes(x=STRUCTURES_TOTAL_WATER)) +
   geom_histogram(binwidth=1,fill=blues20, color=blues20[20]) +
   labs(x="Total Number of Structures in the Water", y="Number of Parcels", title="Distribution of Structures in the Water") +
@@ -75,6 +75,7 @@ parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) +
 
 
 # Parcel Drilldown - Vegetation Presence Plot -----------------------------
+# prototype plot
 parcel_veg <- select(parcel_dd,c(PARCELID,FLOATING_VEG_PRES,EMERGENT_VEG_PRES))
 parcel_veg_pivot <- pivot_longer(parcel_veg, cols=!PARCELID, names_to="Type", values_to="Presence")
 parcel_veg_pivot %>% ggplot(aes(x=Type,y=Presence,fill=PARCELID)) +
