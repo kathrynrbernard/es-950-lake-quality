@@ -61,3 +61,4 @@ str(woody_data_raw) # All these datatypes look correct - no conversions are need
 # Output ------------------------------------------------------------------
 # Write out a clean file for naming consistency's sake
 write.csv(woody_data_raw, "data/950_woody_habitat_clean.csv")
+

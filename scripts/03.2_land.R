@@ -269,3 +269,4 @@ parcel_struc_pivot %>% ggplot(aes(x=Structure,y=Count)) +
   geom_bar(stat="identity", position="dodge") +
   facet_wrap(facets=vars(PARCELID)) +
   theme_minimal()
+

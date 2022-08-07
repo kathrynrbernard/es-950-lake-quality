@@ -109,11 +109,12 @@ e <- erosion_prevent %>% ggplot(arbor_parcel, mapping=aes(x='ERO_PRE', y= PARCEL
                    labels=c("Riprap Length", "Vertical Wall Length", "Erosion Control Length")) +
   theme_minimal() +
   theme(text = element_text(family="arial"))
+ggplotly(e, tooltip="text")
         
 # heatmap
 # data needs to be in a "long" format
 erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
-
+rownames(erosion_control) <- arbor_parcel$PARCELID
 erosion_control_pivot <- pivot_longer(erosion_control,cols=!PARCELID,names_to="CONTROL_TYPE",values_to="LENGTH")
 
 tans <- c("wheat", "wheat1", "wheat2", "wheat3", "wheat4")

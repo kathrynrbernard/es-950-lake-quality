@@ -283,17 +283,24 @@ server <- function(input, output) {
   output$erosion_factors <- renderPlotly({
     
     # Plot
-    e <- erosion_prevent %>% ggplot(arbor_parcel, mapping = aes(x='ERO_PRE', y= PARCELID, fill='LEN')) + 
-      geom_tile()+
-      scale_fill_distiller(palette="BrBG",direction=1, name="Percent Coverage") +
-      labs(title="Erosion Control on Big Arbor", x="Control Type", y="Parcel") +
-      scale_x_discrete(limits=c("RIPRAP_LEN", "ERTICAL_WALL_LEN", "EROSION_CNTRL_LEN"),
-                       labels=c("Riprap Length", "Vertical Wall Length", "Erosion Control Length")) +
+    erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
+    rownames(erosion_control) <- arbor_parcel$PARCELID
+    erosion_control_pivot <- pivot_longer(erosion_control,cols=!PARCELID,names_to="CONTROL_TYPE",values_to="LENGTH")
+    
+    tans <- c("wheat", "wheat1", "wheat2", "wheat3", "wheat4")
+    
+    p <- erosion_control_pivot %>% ggplot(aes(x=CONTROL_TYPE,y=PARCELID,fill=LENGTH,
+                                              text=paste0("Parcel ID: ", PARCELID, "\nLength of Erosion Control: ",LENGTH,"ft"))) +
+      geom_tile() +
+      labs(title="Erosion Control Length per Parcel", x="Erosion Control Type", y="Parcel") +
+      scale_fill_gradient(low="cornsilk", high="chocolate4",name="Length of Control Structure (Feet)") +
+      scale_x_discrete(limits=c("VERTICAL_WALL_LEN", "RIPRAP_LEN", "EROSION_CNTRL_LEN"),
+                       labels=c("Vertical Wall", "Riprap", "Other")) +
       theme_minimal() +
-      theme(text = element_text(family="arial"),
-            plot.title = element_text(hjust = 0.5,size=15),
-            axis.ticks.y=element_blank(),
-            axis.text.y = element_blank())
+      theme(#text = element_text(family="arial"),
+        plot.title = element_text(hjust = 0.5,size=15),
+        axis.ticks.y=element_blank(),
+        axis.text.y = element_blank())
     ggplotly(p, tooltip="text")
     
     plotly::plot_ly(
