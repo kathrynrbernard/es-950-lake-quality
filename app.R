@@ -136,11 +136,11 @@ ui <- fluidPage(
                 fluidRow(style="padding-bottom: 50px; padding-top: 10px;",
                   column(7, plotlyOutput("erosion_factors")),
                    column(5, h5("Summary"),
-                          p("Here we want to compare the erosion control features on Big Arbor Lake.
+                          p("This heat map compares the erosion control features on Big Arbor Lake.
                                 There are some vertical walls in place to prevent erosion, as well as some other control features.
-                            Riprap is the most dominant type of erosion controll on this lake. ",style="font-size:16px;"),
+                            Riprap is the most dominant type of erosion controll on this lake.",style="font-size:16px;"),
                           h5("Recommendations"),
-                          p("While preventing erosion is useful, the way we prevent bank erosion matters. Having these rigid barriers
+                          p("While preventing erosion is useful, the method with which we prevent bank erosion is critical to lake health. Having these rigid barriers
                             can sometimes be doing more harm than good in erosion prevention. Let's see if there are any more erosion concerns where
                             in the future we can use more natural erosion prevention methods.",style="font-size:16px;"))),
                 h3("Breaking it down",style="text-decoration: underline;"),
@@ -315,7 +315,8 @@ server <- function(input, output) {
   
   output$erosion_factors <- renderPlotly({
     
-    # Plot
+    # heatmap
+    # data needs to be in a "long" format
     erosion_control <- select(arbor_parcel, c(PARCELID, VERTICAL_WALL_LEN, RIPRAP_LEN, EROSION_CNTRL_LEN))
     rownames(erosion_control) <- arbor_parcel$PARCELID
     erosion_control_pivot <- pivot_longer(erosion_control,cols=!PARCELID,names_to="CONTROL_TYPE",values_to="LENGTH")
@@ -335,18 +336,6 @@ server <- function(input, output) {
         axis.ticks.y=element_blank(),
         axis.text.y = element_blank())
     ggplotly(p, tooltip="text")
-    
-    erosion_prevent <- select(arbor_parcel,
-                              c(RIPRAP_LEN,VERTICAL_WALL_LEN,EROSION_CNTRL_LEN,PARCELID))
-    erosion_prevent <- pivot_longer(erosion_prevent,cols=!PARCELID,names_to='ERO_PRE',values_to='LEN')
-    plotly::plot_ly(
-      data = erosion_prevent,
-      x = ~ERO_PRE, y = ~PARCELID, z = ~LEN, text = ~paste('Parcel ID: ', PARCELID),
-      colors="BrBG",
-      hoverinfo = "text",
-      type = "heatmap"
-    )
-    
   })
 
   output$erosion_parcels <- renderPlot({

@@ -91,16 +91,6 @@ p <- erosion_control_pivot %>% ggplot(aes(x=CONTROL_TYPE,y=PARCELID,fill=LENGTH,
         axis.text.y = element_blank())
 ggplotly(p, tooltip="text")
 
-plotly::plot_ly(
-  data = erosion_prevent,
-  x = ~ERO_PRE, y = ~PARCELID, z = ~LEN, text = ~paste('Parcel ID: ', PARCELID),
-  colors="BrBG",
-  hoverinfo = "text",
-  type = "heatmap"
-)
-
-
-
 # Control vs Risk ---------------------------------------------------
 # venn diagram
 
