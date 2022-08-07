@@ -1,3 +1,6 @@
+## This script does all the plotting for the littoral zone information
+## Run 03_analysis.R first to load in data and do necessary pre-processing
+
 
 # Setup -------------------------------------------------------------------
 # Load packages

@@ -1,3 +1,6 @@
+## This script does all the plotting for the riparian zone information
+## Run 03_analysis.R first to load in data and do necessary pre-processing
+
 
 # Setup -------------------------------------------------------------------
 # Load packages
@@ -6,10 +9,6 @@ library(gridExtra)
 library(grid)
 library(plotly)
 library(RColorBrewer)
-
-# Plots -------------------------------------------------------------------
-## plotting notes: https://datacarpentry.org/R-ecology-lesson/04-visualization-ggplot2.html
-
 
 # Canopy Coverage Plots --------------------------------------------------
 # basic plot
