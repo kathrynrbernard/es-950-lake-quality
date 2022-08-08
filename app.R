@@ -259,7 +259,7 @@ server <- function(input, output) {
     arbor_parcel %>% ggplot(aes(x=STRUCTURES_CLASS, fill=as.factor(FLOAT_OR_EMERG_PRES))) +
       geom_histogram(stat = "count",position="dodge", color=blues[8]) +
       scale_x_discrete(limits=c("Low","Medium", "High"),labels=c("Low (0-1)","Medium (2-5)", "High (6+)")) +
-      labs(title="Presence of Aquatic Vegetation by Structures in the Water",x="Number of Structures", y="Number of Parcels") +
+      labs(title="Presence of Aquatic Vegetation by Structures",x="Number of Structures", y="Number of Parcels") +
       scale_fill_manual(name="Aquatic Vegetation Present", values = blues2) +
       guides(color="none") +
       theme_minimal() +
