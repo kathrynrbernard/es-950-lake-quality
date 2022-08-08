@@ -331,10 +331,13 @@ server <- function(input, output) {
       scale_x_discrete(limits=c("VERTICAL_WALL_LEN", "RIPRAP_LEN", "EROSION_CNTRL_LEN"),
                        labels=c("Vertical Wall", "Riprap", "Other")) +
       theme_minimal() +
-      theme(#text = element_text(family="arial"),
-        plot.title = element_text(hjust = 0.5,size=15),
-        axis.ticks.y=element_blank(),
-        axis.text.y = element_blank())
+      theme(text = element_text(family="arial"),
+            plot.title = element_text(hjust = 0.5,size=18),
+            axis.title.x = element_text(size=15),
+            axis.title.y = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            axis.ticks.y=element_blank(),
+            axis.text.y = element_blank())
     ggplotly(p, tooltip="text")
   })
 
