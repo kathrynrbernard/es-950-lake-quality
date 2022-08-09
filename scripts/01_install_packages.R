@@ -4,7 +4,6 @@ install.packages("tidyverse") # used for dataframe manipulation (primarily dplyr
 install.packages("lintr")
 install.packages("gridExtra") # used for some plotting
 install.packages("grid")
-install.packages("hrbrthemes")
 install.packages("plotly") # used for interactive heatmaps
 install.packages("VennDiagram") # used for erosion diagram
 install.packages("RColorBrewer") # used for colors
