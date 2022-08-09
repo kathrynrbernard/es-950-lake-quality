@@ -236,13 +236,15 @@ server <- function(input, output) {
     parcel_pivot %>% mutate(PARCELID=factor(parcel_pivot$PARCELID, 
                                             levels=c("2-2649", "2-2562-02", "2-2686-16"),
                                             labels=labels)) %>% 
-      ggplot(aes(x=Vegetation,y=Pct)) +
-      geom_bar(stat="identity", position="dodge",fill=greens15,color=greens[9]) +
+      ggplot(aes(x=Vegetation,y=Pct,fill=PARCELID)) +
+      geom_bar(stat="identity", position="dodge",color=greens[9]) +
+      scale_fill_manual(values=c(greens[2],greens[4],greens[6]),name="Parcel ID",labels=c("2-2649", "2-2562-02", "2-2686-16")) +
       labs(x="Type of Vegetation", y="Percent Coverage", title="Land Cover Type Per Parcel") +
       scale_x_discrete(limits=c("SHRUB_HERB_PCT", "MANI_LAWN_PCT", "IMPERVIOUS_PCT", "AG_PCT", "OTHER_PCT"), 
                        labels=c("Shrub/Herb", "Lawn", "Impervious", "Agriculture", "Other")) +
+      scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs
       facet_wrap(facets=vars(PARCELID)) +
-      coord_flip() + 
+      coord_flip() +
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5,size=18),
             axis.title.x = element_text(size=15),
@@ -300,9 +302,10 @@ server <- function(input, output) {
                        labels=c("BOATHOUSE_CNT"="Boathouses", "MARINAS_CNT"="Marinas", 
                                 "SWIM_RAFT_CNT"="Swim Rafts", "STRUCTURE_OTHER_CNT"="Other Structures", 
                                 "BOAT_LIFT_CNT"="Boat Lifts", "PIERS_CNT"="Piers")) + 
-      scale_fill_manual(values=blues[c(7,3,1)], name="Parcel ID",breaks=c("2-2686-16", "2-2649", "2-2562-02")) + # re-title and re-order legend
+      scale_fill_manual(values=blues[c(2,4,6)], name="Parcel ID",breaks=c("2-2649", "2-2562-02","2-2686-16")) + # re-title and re-order legend
       labs(x="Number of Structures", y="Type of Structure", title="Count of Each Type of Structure per Parcel") +
       theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5,size=15)) +
       theme(plot.title = element_text(hjust = 0.5,size=18),
             axis.title.x = element_text(size=15),
             axis.title.y = element_text(size=15),
@@ -353,31 +356,23 @@ server <- function(input, output) {
                                 "SAND_DEP_PRES","CHANNEL_FLOW_PRES"),
                        labels=c("Other runoff factor", "Lawn sloping into lake", "Stairs sloping into lake", "Point source",
                                 "Sand deposits", "Channel flow")) +
-      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4"), name="Parcel ID", breaks=c("2-2649", "2-2562-02","2-2686-16")) +
       scale_y_continuous(breaks=c(0,1), labels=c("False", "True")) +
       labs(x="Risk Factor", y="Presence of Risk Factor", title="Erosion Risk Factors per Parcel") +
       coord_flip() +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=18),
-            axis.title.x = element_text(size=15),
-            axis.title.y = element_text(size=15),
-            axis.text.x=element_text(size=12),
-            axis.text.y=element_text(size=12))
+      theme(plot.title = element_text(hjust = 0.5,size=15))
     
     p2 <- parcel_control_pivot %>% 
       ggplot(aes(x=Control,y=Length, fill=PARCELID)) +
       geom_bar(stat="identity", position="dodge",color="chocolate4") +
       scale_x_discrete(limits=c("EROSION_CNTRL_LEN","VERTICAL_WALL_LEN", "RIPRAP_LEN"),
                        labels=c("Other erosion control", "Vertical seawall", "Riprap")) +
-      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+      scale_fill_manual(values=c("wheat2", "wheat3", "wheat4"),name="Parcel ID", breaks=c("2-2649", "2-2562-02","2-2686-16")) +
       labs(x="Type of Control Structure", y="Length of Control Structure (Feet)", title="Erosion Control Structures per Parcel") +
       coord_flip() +
       theme_minimal() +
-      theme(plot.title = element_text(hjust = 0.5,size=18),
-            axis.title.x = element_text(size=15),
-            axis.title.y = element_text(size=15),
-            axis.text.x=element_text(size=12),
-            axis.text.y=element_text(size=12))
+      theme(plot.title = element_text(hjust = 0.5,size=15))
     grid.arrange(p1,p2,nrow=2)
   })
   

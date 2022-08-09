@@ -123,7 +123,7 @@ p1 <- parcel_risk_pivot %>% replace(is.na(.), 0) %>%
                             "SAND_DEP_PRES","CHANNEL_FLOW_PRES"),
                    labels=c("Other runoff factor", "Lawn sloping into lake", "Stairs sloping into lake", "Point source",
                             "Sand deposits", "Channel flow")) +
-  scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+  scale_fill_manual(values=c("wheat2", "wheat3", "wheat4"), name="Parcel ID", breaks=c("2-2649", "2-2562-02","2-2686-16")) +
   scale_y_continuous(breaks=c(0,1), labels=c("False", "True")) +
   labs(x="Risk Factor", y="Presence of Risk Factor", title="Erosion Risk Factors per Parcel") +
   coord_flip() +
@@ -135,7 +135,7 @@ p2 <- parcel_control_pivot %>%
   geom_bar(stat="identity", position="dodge",color="chocolate4") +
   scale_x_discrete(limits=c("EROSION_CNTRL_LEN","VERTICAL_WALL_LEN", "RIPRAP_LEN"),
                    labels=c("Other erosion control", "Vertical seawall", "Riprap")) +
-  scale_fill_manual(values=c("wheat2", "wheat3", "wheat4")) +
+  scale_fill_manual(values=c("wheat2", "wheat3", "wheat4"),name="Parcel ID", breaks=c("2-2649", "2-2562-02","2-2686-16")) +
   labs(x="Type of Control Structure", y="Length of Control Structure (Feet)", title="Erosion Control Structures per Parcel") +
   coord_flip() +
   theme_minimal() +

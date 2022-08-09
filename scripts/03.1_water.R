@@ -67,7 +67,7 @@ parcel_struc_pivot %>% ggplot(aes(x=Count,y=Type,fill=PARCELID)) +
                    labels=c("BOATHOUSE_CNT"="Boathouses", "MARINAS_CNT"="Marinas", 
                             "SWIM_RAFT_CNT"="Swim Rafts", "STRUCTURE_OTHER_CNT"="Other Structures", 
                             "BOAT_LIFT_CNT"="Boat Lifts", "PIERS_CNT"="Piers")) + 
-  scale_fill_manual(values=blues[c(7,3,1)], name="Parcel ID",breaks=c("2-2686-16", "2-2649", "2-2562-02")) + # re-title and re-order legend
+  scale_fill_manual(values=blues[c(2,4,6)], name="Parcel ID",breaks=c("2-2649", "2-2562-02","2-2686-16")) + # re-title and re-order legend
   labs(x="Number of Structures", y="Type of Structure", title="Count of Each Type of Structure per Parcel") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5,size=15))

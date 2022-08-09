@@ -220,44 +220,22 @@ parcel_veg_struc <- select(parcel_dd,c(PARCELID,SHRUB_HERB_PCT,IMPERVIOUS_PCT,MA
                                        STRUCTURES_TOTAL_LAND))
 parcel_pivot <- parcel_veg_struc %>% pivot_longer(!c(PARCELID,STRUCTURES_TOTAL_LAND), names_to="Vegetation", values_to="Pct")
 
-# color setup
-greens15 <- greens # initialize
-i <- 1
-for(i in 1:nrow(parcel_pivot)){
-  if(parcel_pivot[i,"Pct"] == 0){
-    greens15[i] <- greens[1]
-  }
-  else if(parcel_pivot[i,"Pct"] < 10){
-    greens15[i] <- greens[3]
-  }
-  else if(parcel_pivot[i,"Pct"] >= 10 & parcel_pivot[i,"Pct"] < 70){
-    greens15[i] <- greens[6]
-  }
-  else if(parcel_pivot[i,"Pct"] >= 70){
-    greens15[i] <- greens[8]
-  }
-  i <- i + 1
-}
 
 labels <- c(paste("Parcel ID: ",factor(parcel_dd$PARCELID), "\nTotal Structures: ", parcel_dd$STRUCTURES_TOTAL_LAND))
 parcel_pivot %>% mutate(PARCELID=factor(parcel_pivot$PARCELID, 
                                         levels=c("2-2649", "2-2562-02", "2-2686-16"),
                                         labels=labels)) %>% 
-  ggplot(aes(x=Vegetation,y=Pct)) +
-  geom_bar(stat="identity", position="dodge",fill=greens15,color=greens[9]) +
+  ggplot(aes(x=Vegetation,y=Pct,fill=PARCELID)) +
+  geom_bar(stat="identity", position="dodge",color=greens[9]) +
+  scale_fill_manual(values=c(greens[2],greens[4],greens[6]),name="Parcel ID",labels=c("2-2649", "2-2562-02", "2-2686-16")) +
   labs(x="Type of Vegetation", y="Percent Coverage", title="Land Cover Type Per Parcel") +
   scale_x_discrete(limits=c("SHRUB_HERB_PCT", "MANI_LAWN_PCT", "IMPERVIOUS_PCT", "AG_PCT", "OTHER_PCT"), 
                    labels=c("Shrub/Herb", "Lawn", "Impervious", "Agriculture", "Other")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) + # show % signs
   facet_wrap(facets=vars(PARCELID)) +
-  coord_flip() + # or slant the x axis ticks
-  #theme(axis.text.x = element_text(angle = 45))
+  coord_flip() +
   theme_minimal()
 
-unique(parcel_pivot$Pct) # 85 10  0  5 15 70  3
-# if pct == 0 use greens[1]
-# if pct < 10 use greens[3]
-# if pct >= 10 or < 70 use greens[5]
-# pct >= 70 use greens[7]
 
 
 # Structures
